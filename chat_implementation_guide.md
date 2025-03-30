@@ -159,28 +159,28 @@ src/
 - `/src/features/chat/components/message-list.tsx` (Create)
 - `/src/features/chat/types.ts` (Create)
 
-```typescript
-// src/app/(dashboard)/[workspaceId]/chat/page.tsx
-export default function ChatPage() {
-  return (
+   ```typescript
+   // src/app/(dashboard)/[workspaceId]/chat/page.tsx
+   export default function ChatPage() {
+     return (
     <div className="flex h-full">
-      <ChatContainer />
+         <ChatContainer />
     </div>
   );
 }
 
 // src/features/chat/components/chat-container.tsx
 export function ChatContainer() {
-  return (
+     return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
         <MessageList />
       </div>
       <MessageInput />
-    </div>
-  );
-}
-```
+       </div>
+     );
+   }
+   ```
 
 **Appwrite Setup:**
 - No Appwrite configuration needed for this version
@@ -214,28 +214,28 @@ export function ChatContainer() {
 - `/src/features/chat/hooks/use-send-message.ts` (Create)
 - `/src/features/chat/types.ts` (Update)
 
-```typescript
-// src/features/chat/components/message-input.tsx
-export function MessageInput() {
-  const [message, setMessage] = useState('');
-  
-  return (
+   ```typescript
+   // src/features/chat/components/message-input.tsx
+   export function MessageInput() {
+     const [message, setMessage] = useState('');
+     
+     return (
     <form onSubmit={handleSubmit} className="p-4 border-t">
       <div className="flex gap-2">
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type a message..."
+         <input
+           value={message}
+           onChange={(e) => setMessage(e.target.value)}
+           placeholder="Type a message..."
           className="flex-1 rounded-md border p-2"
-        />
+         />
         <button type="submit" className="px-4 py-2 bg-primary text-white rounded-md">
           Send
         </button>
       </div>
-    </form>
-  );
-}
-```
+       </form>
+     );
+   }
+   ```
 
 **Appwrite Setup:**
 - No Appwrite configuration needed for this version
@@ -424,7 +424,7 @@ app.post("/messages", sessionMiddleware, async (c) => {
 
 #### Test Strategy v0.4.0
 1. **Jest Unit Tests**
-   ```typescript
+```typescript
    // src/features/chat/api/__tests__/use-send-message.test.ts
    describe('useSendMessage', () => {
      it('sends message successfully', async () => {
@@ -441,9 +441,9 @@ app.post("/messages", sessionMiddleware, async (c) => {
          await result.current.mutateAsync({ content: '' });
        });
        expect(result.current.error).toBeDefined();
-     });
-   });
-   ```
+  });
+});
+```
 
 2. **Visual Inspection**
    - [ ] Message appears in chat after sending
@@ -475,8 +475,8 @@ export function useGetMessages(conversationId: string, workspaceId: string) {
         },
       });
       return response.json();
-    },
-  });
+  },
+});
 }
 ```
 
@@ -495,7 +495,7 @@ export function useGetMessages(conversationId: string, workspaceId: string) {
 
 #### Test Strategy v0.5.0
 1. **Jest Unit Tests**
-   ```typescript
+```typescript
    // src/features/chat/api/__tests__/use-get-messages.test.ts
    describe('useGetMessages', () => {
      it('fetches messages for conversation', async () => {
@@ -511,8 +511,8 @@ export function useGetMessages(conversationId: string, workspaceId: string) {
          expect(result.current.data).toHaveLength(0);
        });
      });
-   });
-   ```
+});
+```
 
 2. **Visual Inspection**
    - [ ] Messages load when opening chat

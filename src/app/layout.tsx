@@ -20,13 +20,15 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" className="h-full">
         <body
-            className={cn(inter.className, "antialised min-h-screen")}
+            className={cn(inter.className, "antialiased h-full")}
         >
         <QueryProvider>
             <Toaster/>
-            {children}
+            <main className="h-full">
+              {children}
+            </main>
         </QueryProvider>
         </body>
         </html>

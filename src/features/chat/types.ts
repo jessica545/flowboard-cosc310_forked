@@ -6,6 +6,10 @@ export interface Message {
   conversationId: string;
 }
 
+export interface MessageFormData {
+  content: string;
+}
+
 export interface Conversation {
   id: string;
   name: string;
