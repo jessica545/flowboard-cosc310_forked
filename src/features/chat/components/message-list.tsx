@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { Loader, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Message } from '../types';
-import { cn } from '@/lib/utils';
+import { MessageBubble } from './message-bubble';
 
 interface MessageListProps {
   messages?: Message[];
@@ -51,34 +51,11 @@ export function MessageList({ messages = [], isLoading = false, error = null }: 
   return (
     <div role="main" className="p-4 space-y-6" data-testid="message-list">
       {messages.map((message) => (
-        <div 
+        <MessageBubble
           key={message.id}
-          className={cn(
-            "flex flex-col",
-            message.senderId === 'current-user' ? 'items-end' : 'items-start'
-          )}
-          data-testid={`message-${message.id}`}
-        >
-          <div className={cn(
-            "max-w-[70%] rounded-2xl px-4 py-2",
-            message.senderId === 'current-user' 
-              ? "bg-blue-500 text-white" 
-              : "bg-neutral-100 text-neutral-900"
-          )}>
-            <p className="text-sm">{message.content}</p>
-          </div>
-          <span className={cn(
-            "text-xs mt-1",
-            message.senderId === 'current-user' 
-              ? "text-neutral-500 pr-1" 
-              : "text-neutral-500 pl-1"
-          )}>
-            {new Date(message.createdAt).toLocaleTimeString([], { 
-              hour: '2-digit', 
-              minute: '2-digit'
-            })}
-          </span>
-        </div>
+          message={message}
+          isCurrentUser={message.senderId === 'current-user'}
+        />
       ))}
       {isLoading && (
         <div data-testid="message-loading" className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg">

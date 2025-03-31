@@ -3,6 +3,8 @@ export interface Message {
   content: string;
   senderId: string;
   createdAt: string;
+  avatar?: string;
+  username?: string;
   conversationId: string;
 }
 
@@ -23,4 +25,10 @@ export interface ChatState {
   messages: Message[];
   isLoading: boolean;
   error: string | null;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  avatar?: string;
 } 
