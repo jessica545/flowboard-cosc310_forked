@@ -19,22 +19,28 @@ export const useCreateProject = () => {
         RequestType
     >({
         mutationFn: async ({form}) => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
+            try {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
                 const response = await client.api.projects["$post"]({form});
 
                 if (!response.ok) {
-                    throw new Error("failed to create project");
+                    throw new Error("Failed to create project");
                 }
                 return await response.json();
-            },
+            } catch (error) {
+                console.error("Project creation error:", error);
+                throw error;
+            }
+        },
         
         onSuccess: () => {
-            toast.success("Project created");
+            toast.success("Project created successfully");
             queryClient.invalidateQueries({ queryKey: ["projects"]});
         },
-        onError: () => {
-            toast.error("Failed to create Project");
+        onError: (error) => {
+            console.error("Project creation error:", error);
+            toast.error("Failed to create project");
         }
     });
 }

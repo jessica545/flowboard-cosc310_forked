@@ -11,6 +11,7 @@
     "dev:https": "next dev --experimental-https --experimental-https-key ./certificates/localhost-key.pem --experimental-https-cert ./certificates/localhost.pem"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^17.0.0",
     "@hono/zod-validator": "0.3.0",
     "@hookform/resolvers": "^3.10.0",
     "@jest/globals": "^29.7.0",

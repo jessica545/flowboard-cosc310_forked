@@ -14,12 +14,11 @@ import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { useTaskFilters } from "../hooks/use-task-filters";
 import { columns } from "./columns"
 import { DataTable } from "@/components/data-table";
+import { DataKanban } from "./data-kanban";
 
 import React from "react";
 
-
 export const TaskViewSwitcher = () => {
-    
     const [view, setView] = useQueryState("task-view", {
         defaultValue: "table",
     });
@@ -27,7 +26,6 @@ export const TaskViewSwitcher = () => {
     const [{ status, assigneeId, projectId, dueDate, search }] = useTaskFilters();
     const workspaceId = useWorkspaceId();
     const { open } = useCreateTaskModal();
-
 
     const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({
         workspaceId,
@@ -71,18 +69,17 @@ export const TaskViewSwitcher = () => {
                 ) : (
                     <>
                         <TabsContent value="table" className="mt-0">
-                           <DataTable columns = {columns} data={tasks?.documents ?? []} />
+                           <DataTable columns={columns} data={tasks?.documents ?? []} />
                         </TabsContent>
 
                         <TabsContent value="kanban" className="mt-0">
-                            {JSON.stringify(tasks)}
+                            <DataKanban data={tasks?.documents ?? []} />
                         </TabsContent>
 
                         {/* NOT IMPLEMENTING */}
                         {/* <TabsContent value="calendar" className="mt-0">
                             {JSON.stringify(tasks)}
                         </TabsContent> */}
-                        
                     </>
                 )}
             </div>

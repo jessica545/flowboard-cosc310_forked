@@ -92,21 +92,22 @@ export const EditWorkspaceForm = ({ onCancel, initialValues }: EditWorkspaceForm
             },
           }
           );
-      };
-      const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files ?.[0];
-        if (!file){
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files ? e.target.files[0] : null;
+      if (file) {
         form.setValue("image", file);
       }
-      }
+    }
 
-      const fullInviteLink = `${window.location.origin}/workspaces/${initialValues.$id}/join/${initialValues.inviteCode}`; 
-      
-      const handleCopyInviteLink = () => {
-        navigator.clipboard.writeText(fullInviteLink)
-        .then(() => toast.success("Invite link copied to clipboard"));
-      }; 
-      return (
+    const fullInviteLink = `${window.location.origin}/workspaces/${initialValues.$id}/join/${initialValues.inviteCode}`; 
+    
+    const handleCopyInviteLink = () => {
+      navigator.clipboard.writeText(fullInviteLink)
+      .then(() => toast.success("Invite link copied to clipboard"));
+    }; 
+    return (
           <div className="flex flex-col gap-y-4">
           <DeleteDialog />
           <ResetDialog />
