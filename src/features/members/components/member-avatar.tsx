@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-
+import React from "react";
 // TODO: FB-3025 - This is a boilerplate, should be replaced with Jessica's logic
 interface MemberAvatarProps {
     image?: string;
@@ -25,14 +25,14 @@ export const MemberAvatar = ({
     }
 
     return (
-        <Avatar className={cn("size-6 rounded-full", className)}>
+        <Avatar className={cn("size-6 transition border border-neutral-300 rounded-full", className)}>
             <AvatarFallback
                 className={cn(
-                    "text-white bg-gray-600 font-semibold text-sm uppercase rounded-full",
+                    "bg-neutral-200 font-medium text-neutral-500 flex items-center justify-center",
                     fallbackClassName
                 )}
             >
-                {name[0]}
+                {name.charAt(0).toUpperCase()}
             </AvatarFallback>
         </Avatar>
     );
