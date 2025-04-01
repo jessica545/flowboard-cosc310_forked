@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { getCurrent } from "@/features/auth/queries";
-import { getProject } from "@/features/projects/queries";
+import { getProject, getProjectAnalytics } from "@/features/projects/queries";
 import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 import { Button } from "@/components/ui/button";
 import { PencilIcon } from "lucide-react";
 import Link from "next/link";
 import { TaskViewSwitcher } from "@/features/tasks/components/task-view-switcher";
+import { Analytics } from "@/components/analytics";
 
 interface ProjectIdPageProps {
     params: { projectId: string };
@@ -26,9 +27,15 @@ const ProjectIdPage = async ({
     throw new Error("Project not found");
    }
 
+   // Fetch project analytics
+   const analyticsData = await getProjectAnalytics({
+    projectId: params.projectId,
+   });
+
     return (
-        <div className="flex flex-col gap-y-4">
-            <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-y-4 p-4">
+            {/* Project Header with Edit Button */}
+            <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-x-2">
                     <ProjectAvatar 
                     name={initialValues.name}
@@ -46,7 +53,12 @@ const ProjectIdPage = async ({
                     </Button>
                 </div>
             </div>
-            <TaskViewSwitcher />
+
+            {/* Project Analytics */}
+            {analyticsData && <Analytics data={analyticsData} />}
+
+            {/* Task View Switcher */}
+            <TaskViewSwitcher hideProjectFilter/>
         </div>
     );
 };

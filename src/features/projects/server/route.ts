@@ -1,16 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, PROJECTS_ID, WORKSPACES_ID } from "@/config";
+import { DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, PROJECTS_ID, TASKS_ID, WORKSPACES_ID } from "@/config";
 import { getMember } from "@/features/members/utils";
 import { sessionMiddleware } from "@/lib/session-middleware";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { ID, Query } from "node-appwrite";
+import { ID, Query, type Models, type Databases } from "node-appwrite";
+import { endOfMonth, startOfMonth, subMonths } from "date-fns";
+import { TaskStatus } from "@/features/tasks/types";
 import { z } from "zod";
 import { createProjectSchema, updateProjectSchema } from "../schemas";
 import { Project } from "../types";
+import { env } from "node:process";
+import { createSessionClient } from "../../../lib/appwrite";
 
+interface Task extends Models.Document {
+  title: string;
+  projectId: string;
+  assignedToId?: string;
+  completed: boolean;
+  dueDate?: string;
+}
 
-const app = new Hono();
+interface Context {
+  Variables: {
+    userId: string;
+    databases: Databases;
+  };
+}
+
+const app = new Hono<Context>();
 
 // Create a new project
 app.post(
@@ -108,8 +126,6 @@ app.get(
             ]
         );
 
-        console.log({ projects }); // TEST
-
         return c.json({ data: projects });
     }
 );
@@ -195,5 +211,84 @@ app.delete(
         return c.json({ data: { $id: existingProject.$id }});
     }
 )
+
+app
+  .use("*", sessionMiddleware)
+  .get("/analytics", async (c) => {
+    try {
+      const projectId = c.req.param("projectId");
+      if (!projectId) {
+        throw new Error("Project ID is required");
+      }
+
+      const databases = c.get("databases");
+      const project = await databases.getDocument<Project>(
+        DATABASE_ID,
+        PROJECTS_ID,
+        projectId
+      );
+
+      const userId = c.get("userId");
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+
+      // Get total tasks
+      const totalTasks = await databases.listDocuments<Task>(
+        DATABASE_ID,
+        TASKS_ID,
+        [Query.equal("projectId", projectId), Query.limit(100000)]
+      );
+
+      // Get assigned tasks
+      const assignedTasks = await databases.listDocuments<Task>(
+        DATABASE_ID,
+        TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.equal("assignedToId", userId),
+          Query.limit(100000)
+        ]
+      );
+
+      // Get completed tasks
+      const completedTasks = await databases.listDocuments<Task>(
+        DATABASE_ID,
+        TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.equal("assignedToId", userId),
+          Query.equal("completed", true),
+          Query.limit(100000)
+        ]
+      );
+
+      // Get overdue tasks
+      const overdueTasks = await databases.listDocuments<Task>(
+        DATABASE_ID,
+        TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.equal("assignedToId", userId),
+          Query.lessThan("dueDate", new Date().toISOString()),
+          Query.equal("completed", false),
+          Query.limit(100000)
+        ]
+      );
+
+      const response = {
+        totalTasks: totalTasks.documents.length,
+        assignedTasks: assignedTasks.documents.length,
+        completedTasks: completedTasks.documents.length,
+        overdueTasks: overdueTasks.documents.length,
+      };
+
+      return c.json({
+        data: response,
+      });
+    } catch (error) {
+      throw error;
+    }
+  });
 
 export default app;

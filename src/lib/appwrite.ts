@@ -8,7 +8,7 @@ import {
 } from "node-appwrite"
 import { cookies } from "next/headers";
 import { AUTH_COOKIE } from "@/features/auth/constants";
-import { get } from "http";
+// import { get } from "http";
 
 export async function createSessionClient(){
     const client =new Client()
@@ -49,6 +49,6 @@ export async function createAdminClient() {
         get users() {
             return new Users(client);
         }
-        //TODO: missing users, perhaps from FB-3025, for time being added users
+
     };
 }

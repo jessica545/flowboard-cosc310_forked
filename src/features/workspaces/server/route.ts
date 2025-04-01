@@ -5,7 +5,7 @@ import {createWorkspaceSchema, updateWorkspaceSchema} from "@/features/workspace
 import {sessionMiddleware} from "@/lib/session-middleware";
 import {DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, WORKSPACES_ID} from "@/config";
 import {ID, Query} from "node-appwrite";
-import {MemberRole} from "@/features/members/type";
+import {MemberRole} from "@/features/members/types";
 import {generateInviteCode} from "@/lib/utils";
 import { getMember } from "@/features/members/utils";
 import { Workspace } from "../types";

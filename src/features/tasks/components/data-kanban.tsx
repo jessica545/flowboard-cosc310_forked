@@ -170,32 +170,69 @@ export const DataKanban = ({ data }: DataKanbanProps) => {
                                                                     </Button>
                                                                 </TaskActions>
                                                             </div>
-                                                            <div className="flex items-center gap-2 text-xs text-neutral-500">
+                                                            <div className="flex items-center justify-between gap-2 text-xs text-neutral-500">
                                                                 <div className="flex items-center gap-2">
                                                                     <ProjectAvatar
                                                                         className="size-4"
-                                                                        name={task.project?.name}
+                                                                        name={task.project?.name ?? ''}
                                                                         image={task.project?.ImageUrl}
                                                                     />
                                                                     <span className="truncate">{task.project?.name}</span>
                                                                 </div>
                                                                 {task.dueDate && (
-                                                                    <span className="ml-auto whitespace-nowrap">
+                                                                    <span className="whitespace-nowrap">
                                                                         {format(new Date(task.dueDate), 'MMM d, yyyy')}
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            {task.assignee && (
-                                                                <div className="flex items-center gap-2 text-xs text-neutral-500 mt-1">
-                                                                    <MemberAvatar
-                                                                        className="size-5"
-                                                                        fallbackClassName="text-xs"
-                                                                        name={task.assignee.name}
-                                                                        image={task.assignee.imageUrl}
-                                                                    />
-                                                                    <span className="truncate">{task.assignee.name}</span>
+                                                            <div className="flex items-center justify-between mt-2 border-t pt-2 border-neutral-100">
+                                                                <div className="flex flex-col gap-2 w-full">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <span className="text-xs text-neutral-400">Assignee:</span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {task.assignee ? (
+                                                                                <>
+                                                                                    <MemberAvatar
+                                                                                        className="size-5"
+                                                                                        fallbackClassName="text-xs"
+                                                                                        name={task.assignee.name}
+                                                                                        image={task.assignee.imageUrl}
+                                                                                    />
+                                                                                    <span className="text-xs text-neutral-600 font-medium truncate">
+                                                                                        {task.assignee.name}
+                                                                                    </span>
+                                                                                </>
+                                                                            ) : (
+                                                                                <span className="text-xs text-neutral-400">
+                                                                                    Unassigned
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex items-center justify-between">
+                                                                        <span className="text-xs text-neutral-400">Assigned to:</span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {task.assignedTo ? (
+                                                                                <>
+                                                                                    <MemberAvatar
+                                                                                        className="size-5"
+                                                                                        fallbackClassName="text-xs"
+                                                                                        name={task.assignedTo.name}
+                                                                                        image={task.assignedTo.imageUrl}
+                                                                                    />
+                                                                                    <span className="text-xs text-neutral-600 font-medium truncate">
+                                                                                        {task.assignedTo.name}
+                                                                                    </span>
+                                                                                </>
+                                                                            ) : (
+                                                                                <span className="text-xs text-neutral-400">
+                                                                                    Unassigned
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 )}

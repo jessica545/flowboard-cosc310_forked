@@ -125,6 +125,35 @@ export const CreateTaskForm = ({ onCancel, projectOptions, memberOptions }: Crea
                                 )}
                             />
 
+                            {/* Assigned To Field */}
+                            <FormField
+                                control={form.control}
+                                name="assignedToId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Assigned To</FormLabel>
+                                        <Select defaultValue={field.value} onValueChange={field.onChange}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select who to assign this task to" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {memberOptions.map((member) => (
+                                                    <SelectItem key={member.id} value={member.id}>
+                                                        <div className="flex items-center gap-x-2">
+                                                            <MemberAvatar className="size-6" name={member.name} />
+                                                            {member.name}
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
                             {/* Status Field */}
                             <FormField
                                 control={form.control}

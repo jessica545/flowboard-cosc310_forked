@@ -47,6 +47,7 @@ app.get(
     const tasks = await databases.listDocuments<Task>(DATABASE_ID, TASKS_ID, query);
     const projectIds = tasks.documents.map((task) => task.projectId);
     const assigneeIds = tasks.documents.map((task) => task.assigneeId);
+    const assignedToIds = tasks.documents.map((task) => task.assignedToId).filter(Boolean);
 
     const projects = await databases.listDocuments<Project>(
       DATABASE_ID,
@@ -54,13 +55,14 @@ app.get(
       projectIds.length > 0 ? [Query.contains("$id", projectIds)] : []
     );
 
+    const memberIds = [...new Set([...assigneeIds, ...assignedToIds])];
     const members = await databases.listDocuments(
       DATABASE_ID,
       MEMBERS_ID,
-      assigneeIds.length > 0 ? [Query.contains("$id", assigneeIds)] : []
+      memberIds.length > 0 ? [Query.contains("$id", memberIds.filter(id => id !== undefined))] : []
     );
 
-    const assignees = await Promise.all(
+    const memberDetails = await Promise.all(
       members.documents.map(async (member) => {
         try {
           const user = await users.get(member.userId);
@@ -77,8 +79,9 @@ app.get(
 
     const populatedTasks = tasks.documents.map((task) => {
       const project = projects.documents.find((proj) => proj.$id === task.projectId);
-      const assignee = assignees.find((asg) => asg.$id === task.assigneeId);
-      return { ...task, project, assignee };
+      const assignee = memberDetails.find((mem) => mem.$id === task.assigneeId);
+      const assignedTo = task.assignedToId ? memberDetails.find((mem) => mem.$id === task.assignedToId) : null;
+      return { ...task, project, assignee, assignedTo };
     });
 
     return c.json({ data: { ...tasks, documents: populatedTasks } });
@@ -93,7 +96,7 @@ app.post(
     const user = c.get("user");
     const databases = c.get("databases");
 
-    const { name, status, workspaceId, projectId, dueDate, assigneeId } = c.req.valid("json");
+    const { name, status, workspaceId, projectId, dueDate, assigneeId, assignedToId } = c.req.valid("json");
     const member = await getMember({ databases, workspaceId, userId: user.$id });
     if (!member) return c.json({ error: "Unauthorized" }, 401);
 
@@ -115,6 +118,7 @@ app.post(
       projectId,
       dueDate,
       assigneeId,
+      assignedToId,
       position: newPosition,
     });
 
@@ -130,7 +134,7 @@ app.patch(
     const user = c.get("user");
     const databases = c.get("databases");
     const { taskId } = c.req.param();
-    const { name, status, description, projectId, dueDate, assigneeId } = c.req.valid("json");
+    const { name, status, description, projectId, dueDate, assigneeId, assignedToId } = c.req.valid("json");
 
     const existingTask = await databases.getDocument<Task>(DATABASE_ID, TASKS_ID, taskId);
     const member = await getMember({ databases, workspaceId: existingTask.workspaceId, userId: user.$id });
@@ -143,6 +147,7 @@ app.patch(
       projectId,
       dueDate,
       assigneeId,
+      assignedToId,
       description,
     });
 
@@ -182,12 +187,40 @@ app.get(
     if (!currentMember) return c.json({ error: "Unauthorized" }, 401);
 
     const project = await databases.getDocument<Project>(DATABASE_ID, PROJECTS_ID, task.projectId);
-    const member = await databases.getDocument(DATABASE_ID, MEMBERS_ID, task.assigneeId);
-    const user = await users.get(member.userId);
+    
+    // Get assignee details
+    const assigneeMember = await databases.getDocument(DATABASE_ID, MEMBERS_ID, task.assigneeId);
+    const assigneeUser = await users.get(assigneeMember.userId);
+    const assignee = { ...assigneeMember, name: assigneeUser.name, email: assigneeUser.email };
 
-    const assignee = { ...member, name: user.name, email: user.email };
+    // Get assignedTo details if it exists
+    let assignedTo = null;
+    if (task.assignedToId) {
+      try {
+        const assignedToMember = await databases.getDocument(DATABASE_ID, MEMBERS_ID, task.assignedToId);
+        const assignedToUser = await users.get(assignedToMember.userId);
+        assignedTo = { 
+          ...assignedToMember, 
+          name: assignedToUser.name,
+          email: assignedToUser.email
+        };
+      } catch (error) {
+        console.error('Error fetching assignedTo details:', error);
+      }
+    }
 
-    return c.json({ data: { ...task, project, assignee } });
+    // Return the populated task data
+    return c.json({ 
+      data: { 
+        ...task, 
+        project, 
+        assignee: {
+          ...assignee,
+          imageUrl: assigneeUser.imageUrl
+        },
+        assignedTo 
+      } 
+    });
   }
 );
 

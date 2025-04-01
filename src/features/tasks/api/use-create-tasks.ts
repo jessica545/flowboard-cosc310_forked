@@ -3,8 +3,8 @@ import { InferRequestType, InferResponseType } from "hono";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 
- // TODO : Find a fix for client error
- // @ts-ignore
+// TODO : Find a fix for client error
+// @ts-ignore
 type ResponseType = InferResponseType<typeof client.api.tasks["$post"], 200>;
 // @ts-ignore
 type RequestType = InferRequestType<typeof client.api.tasks["$post"]>;
@@ -22,11 +22,29 @@ export const useCreateTask = () => {
             }
             return await response.json();
         },
-        onSuccess: () => {
+        onSuccess: ({ data }) => {
             toast.success("Task created");
+            
+            // Invalidate all relevant queries
             queryClient.invalidateQueries({ queryKey: ["tasks"] });
+            queryClient.invalidateQueries({ queryKey: ["project-analytics", data.projectId] });
+            
+            // Trigger notification event for task assignment if there's an assignee
+            if (data.assignedToId) {
+                // Dispatch event for notification listener with a small delay to ensure listener is ready
+                setTimeout(() => {
+                    const event = new CustomEvent('taskAssigned', { 
+                        detail: { 
+                            taskId: data.$id,
+                            taskName: data.name,
+                            assignedToId: data.assignedToId
+                        } 
+                    });
+                    window.dispatchEvent(event);
+                }, 100);
+            }
         },
-        onError: () => {
+        onError: (error) => {
             toast.error("Failed to create task");
         },
     });

@@ -7,14 +7,30 @@ export enum TaskStatus {
     DONE = "DONE",
 }
 
-
 export type Task = Models.Document & {
     name: string;
     status: TaskStatus;
     workspaceId: string;
-    assigneeId: string; 
+    assigneeId: string;
+    assignedToId?: string;  // Made optional since not all tasks will have someone assigned
     projectId: string;
     position: number;
     dueDate: string;
-    }
+    description?: string;
+    // Populated fields
+    project?: {
+        name: string;
+        ImageUrl?: string;
+    };
+    assignee?: {
+        name: string;
+        imageUrl?: string;
+        email: string;
+    };
+    assignedTo?: {
+        name: string;
+        imageUrl?: string;
+        email: string;
+    };
+}
     

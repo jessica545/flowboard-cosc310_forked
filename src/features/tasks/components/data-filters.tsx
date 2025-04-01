@@ -55,75 +55,67 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
     if (isLoading) return null;
 
     return (
-        <div className="flex flex-col lg:flex-row gap-2">
-            {/* Status Filter */}
-            <Select value={status ?? "all"} onValueChange={onStatusChange}>
-                <SelectTrigger className="w-full lg:w-auto h-8">
-                    <div className="flex items-center">
-                        <ListChecksIcon className="size-4 mr-2" />
+        <div className="flex flex-col gap-y-2">
+            <div className="flex items-center gap-x-2">
+                <Select
+                    value={status || "all"}
+                    onValueChange={onStatusChange}
+                >
+                    <SelectTrigger className="h-8 w-[150px]">
                         <SelectValue placeholder="All statuses" />
-                    </div>
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All statuses</SelectItem>
-                    <SelectSeparator />
-                    <SelectItem value={TaskStatus.BACKLOG}>Backlog</SelectItem>
-                    <SelectItem value={TaskStatus.IN_PROGRESS}>In Progress</SelectItem>
-                    <SelectItem value={TaskStatus.IN_REVIEW}>In Review</SelectItem>
-                    <SelectItem value={TaskStatus.TODO}>To Do</SelectItem>
-                    <SelectItem value={TaskStatus.DONE}>Done</SelectItem>
-                </SelectContent>
-            </Select>
-
-            {/* Assignee Filter */}
-            <Select defaultValue={assigneeId ?? undefined} onValueChange={onAssigneeChange}>
-                <SelectTrigger className="w-full lg:w-auto h-8">
-                    <div className="flex items-center">
-                        <UserIcon className="size-4 mr-2" />
-                        <SelectValue placeholder="All assignees" />
-                    </div>
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All assignees</SelectItem>
-                    <SelectSeparator />
-                    {memberOptions?.map((member) => (
-                        <SelectItem key={member.value} value={member.value}>
-                            {member.label}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-
-            {/* Project Filter (if not hidden) */}
-            {!hideProjectFilter && (
-                <Select defaultValue={projectId ?? undefined} onValueChange={onProjectChange}>
-                    <SelectTrigger className="w-full lg:w-auto h-8">
-                        <div className="flex items-center">
-                            <FolderIcon className="size-4 mr-2" />
-                            <SelectValue placeholder="All projects" />
-                        </div>
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">All projects</SelectItem>
-                        <SelectSeparator />
-                        {projectOptions?.map((project) => (
-                            <SelectItem key={project.value} value={project.value}>
-                                {project.label}
+                        <SelectItem value="all">All statuses</SelectItem>
+                        <SelectItem value="todo">Todo</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="done">Done</SelectItem>
+                        <SelectItem value="backlog">Backlog</SelectItem>
+                    </SelectContent>
+                </Select>
+
+                <Select
+                    value={assigneeId || "all"}
+                    onValueChange={onAssigneeChange}
+                >
+                    <SelectTrigger className="h-8 w-[150px]">
+                        <SelectValue placeholder="All assignees" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All assignees</SelectItem>
+                        {memberOptions?.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                                {option.label}
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
-            )}
 
-            {/* Due Date Picker */}
-            <DatePicker
-                placeholder="Due Date"
-                className="h-8 w-full lg:w-auto"
-                value={dueDate ? new Date(dueDate) : undefined}
-                onChange={(date) => {
-                    setFilters({ dueDate: date ? date.toISOString() : null });
-                }}
-            />
+                {!hideProjectFilter && (
+                    <Select
+                        value={projectId || "all"}
+                        onValueChange={onProjectChange}
+                    >
+                        <SelectTrigger className="h-8 w-[150px]">
+                            <SelectValue placeholder="All projects" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All projects</SelectItem>
+                            {projectOptions?.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                )}
+
+                <DatePicker
+                    value={dueDate ? new Date(dueDate) : undefined}
+                    onChange={(date) => setFilters({ dueDate: date?.toISOString() })}
+                    placeholder="Due date"
+                    className="h-8 w-[150px]"
+                />
+            </div>
         </div>
     );
 };

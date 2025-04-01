@@ -10,6 +10,7 @@ import { TaskActions } from "./task-actions"
 import { Task } from "../types";
 import React from "react"
 import { snakeCaseToTitleCase } from "@/lib/utils";
+import { MemberAvatar } from "@/features/members/components/member-avatar";
 
 export const columns: ColumnDef<Task>[] = [
   {
@@ -49,7 +50,7 @@ export const columns: ColumnDef<Task>[] = [
         <div className="flex items-center gap-x-2 text-sm font-medium">
           <ProjectAvatar
             className="size-6"
-            name={project?.name}
+            name={project?.name ?? ""}
             image={project?.ImageUrl}
           />
           <p className="line-clamp-1">{project?.name}</p>
@@ -74,15 +75,45 @@ export const columns: ColumnDef<Task>[] = [
       const assignee = row.original.assignee;
       return (
         <div className="flex items-center gap-x-2 text-sm font-medium">
-          {/* If you have a MemberAvatar, import it and use it here:
-              <MemberAvatar
-                className="size-6"
-                fallbackClassName="text-xs"
-                name={assignee?.name}
-                image={assignee?.imageUrl}
-              />
-          */}
-          <p className="line-clamp-1">{assignee?.name}</p>
+          {assignee && (
+            <MemberAvatar
+              className="size-6"
+              fallbackClassName="text-xs"
+              name={assignee.name}
+              image={assignee.imageUrl}
+            />
+          )}
+          <p className="line-clamp-1">{assignee?.name || "Unassigned"}</p>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "assignedTo",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Assigned To
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const assignedTo = row.original.assignedTo;
+      return (
+        <div className="flex items-center gap-x-2 text-sm font-medium">
+          {assignedTo && (
+            <MemberAvatar
+              className="size-6"
+              fallbackClassName="text-xs"
+              name={assignedTo.name}
+              image={assignedTo.imageUrl}
+            />
+          )}
+          <p className="line-clamp-1">{assignedTo?.name || "Unassigned"}</p>
         </div>
       );
     },
