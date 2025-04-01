@@ -12,18 +12,27 @@ export interface EmailPayload {
   html: string;
 }
 
-export const sendEmail = async ({ to, subject, html }: EmailPayload) => {
+export async function sendEmail(payload: EmailPayload) {
+  const { to, subject, html } = payload;
+  const from = 'onboarding@resend.dev'; // Always use the default Resend testing email
+
   try {
-    const from = process.env.RESEND_FROM_EMAIL!;
+    console.log('Attempting to send email with payload:', { to, subject, from });
     const data = await resend.emails.send({
       from,
       to,
       subject,
       html,
     });
+    console.log('Resend API response:', data);
+
+    if (!data) {
+      throw new Error('No response from Resend API');
+    }
 
     return { success: true, data };
   } catch (error) {
+    console.error('Detailed error in sendEmail:', error);
     return { success: false, error };
   }
-}; 
+}  
