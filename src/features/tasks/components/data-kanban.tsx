@@ -1,5 +1,5 @@
 import { Task, TaskStatus } from "@/features/tasks/types";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
     DragDropContext,
     Droppable,
@@ -48,6 +48,12 @@ export const DataKanban = ({ data }: DataKanbanProps) => {
         [key in TaskStatus]: Task[];
     };
 
+    // Log data prop for debugging
+    console.log("DataKanban received tasks:", data.length);
+    if (data.length > 0) {
+        console.log("Sample task projectId:", data[0].projectId);
+    }
+
     const [tasks, setTasks] = useState<TasksState>(() => {
         const initialTasks: TasksState = {
             [TaskStatus.BACKLOG]: [],
@@ -64,6 +70,28 @@ export const DataKanban = ({ data }: DataKanbanProps) => {
         });
         return initialTasks;
     });
+
+    // Update tasks when the data prop changes
+    useEffect(() => {
+        console.log("Data changed, updating tasks state");
+        const newTasks: TasksState = {
+            [TaskStatus.BACKLOG]: [],
+            [TaskStatus.TODO]: [],
+            [TaskStatus.IN_PROGRESS]: [],
+            [TaskStatus.IN_REVIEW]: [],
+            [TaskStatus.DONE]: [],
+        };
+        
+        data.forEach((task) => {
+            newTasks[task.status].push(task);
+        });
+        
+        Object.keys(newTasks).forEach((status) => {
+            newTasks[status as TaskStatus].sort((a, b) => a.position - b.position);
+        });
+        
+        setTasks(newTasks);
+    }, [data]);
 
     const handleDragEnd = useCallback((result: DropResult) => {
         const { destination, source, draggableId } = result;

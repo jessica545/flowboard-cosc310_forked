@@ -1,10 +1,7 @@
-import { useQueryState, parseAsBoolean } from "nuqs";
+import { useState } from "react";
 
 export const useCreateProjectModal = () => {
-    const [isOpen, setIsOpen] = useQueryState (
-        "create-project",
-        parseAsBoolean.withDefault(false).withOptions({ clearOnDefault: true })
-    );
+    const [isOpen, setIsOpen] = useState(false);
 
     const open = () => setIsOpen(true);
     const close = () => setIsOpen(false);

@@ -7,9 +7,10 @@ import { CreateTaskForm } from "./create-task-form";
 
 interface CreateTaskFormWrapperProps {
     onCancel: () => void;
+    initialProjectId?: string;
 }
 
-export const CreateTaskFormWrapper = ({ onCancel }: CreateTaskFormWrapperProps) => {
+export const CreateTaskFormWrapper = ({ onCancel, initialProjectId }: CreateTaskFormWrapperProps) => {
     const workspaceId = useWorkspaceId();
 
     const { data: projects, isLoading: isLoadingProjects } = useGetProjects({ workspaceId });
@@ -44,6 +45,7 @@ export const CreateTaskFormWrapper = ({ onCancel }: CreateTaskFormWrapperProps) 
             onCancel={onCancel}
             projectOptions={projectOptions ?? []}
             memberOptions={memberOptions ?? []} // TODO: uncomment after FB-3025 is merged
-        />
+            defaultProjectId={initialProjectId}
+            />
     );
 };

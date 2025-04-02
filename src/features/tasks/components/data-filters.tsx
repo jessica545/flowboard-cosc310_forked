@@ -6,7 +6,6 @@ import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { ListChecksIcon, UserIcon, FolderIcon } from "lucide-react";
 import { TaskStatus } from "../types";
 import { DatePicker } from "@/components/date-picker";
-import { useTaskFilters } from "../hooks/use-task-filters";
 
 import {
     Select,
@@ -19,9 +18,18 @@ import {
 
 interface DataFiltersProps {
     hideProjectFilter?: boolean;
+    projectId?: string;
+    filters: {
+        projectId: string;
+        status: TaskStatus | null;
+        assigneeId: string;
+        search: string;
+        dueDate: string;
+    };
+    setFilters: (filters: any) => void;
 }
 
-export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
+export const DataFilters = ({ hideProjectFilter, projectId, filters, setFilters }: DataFiltersProps) => {
     const workspaceId = useWorkspaceId();
     const { data: projects, isLoading: isLoadingProjects } = useGetProjects({ workspaceId });
     const { data: members, isLoading: isLoadingMembers } = useGetMembers({ workspaceId });
@@ -38,27 +46,52 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
         label: member.name,
     }));
 
-    const [{ status, assigneeId, projectId, dueDate }, setFilters] = useTaskFilters();
-
     const onStatusChange = (value: string) => {
-        setFilters({ status: value === "all" ? null : (value as TaskStatus) });
+        setFilters(prev => ({
+            ...prev,
+            status: value === "all" ? null : (value as TaskStatus)
+        }));
     };
 
     const onAssigneeChange = (value: string) => {
-        setFilters({ assigneeId: value === "all" ? null : value });
+        setFilters(prev => ({
+            ...prev,
+            assigneeId: value === "all" ? "" : value
+        }));
     };
 
     const onProjectChange = (value: string) => {
-        setFilters({ projectId: value === "all" ? null : value });
+        // Only allow project changes when not in project view
+        if (!projectId) {
+            setFilters(prev => ({
+                ...prev,
+                projectId: value === "all" ? "" : value
+            }));
+        }
+    };
+
+    const onDateChange = (date: Date | undefined) => {
+        setFilters(prev => ({
+            ...prev,
+            dueDate: date?.toISOString() || ""
+        }));
     };
 
     if (isLoading) return null;
+
+    // If we're in a project view, use the projectId prop as the current project ID
+    // Otherwise, use the project ID from filters
+    const currentProjectId = projectId || filters.projectId;
+
+    // If we're in a project view, display the current project as selected
+    // but don't allow changing it through the dropdown
+    const isProjectViewMode = !!projectId;
 
     return (
         <div className="flex flex-col gap-y-2">
             <div className="flex items-center gap-x-2">
                 <Select
-                    value={status || "all"}
+                    value={filters.status || "all"}
                     onValueChange={onStatusChange}
                 >
                     <SelectTrigger className="h-8 w-[150px]">
@@ -66,15 +99,16 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All statuses</SelectItem>
-                        <SelectItem value="todo">Todo</SelectItem>
-                        <SelectItem value="in_progress">In Progress</SelectItem>
-                        <SelectItem value="done">Done</SelectItem>
-                        <SelectItem value="backlog">Backlog</SelectItem>
+                        <SelectItem value={TaskStatus.TODO}>Todo</SelectItem>
+                        <SelectItem value={TaskStatus.IN_PROGRESS}>In Progress</SelectItem>
+                        <SelectItem value={TaskStatus.IN_REVIEW}>In Review</SelectItem>
+                        <SelectItem value={TaskStatus.DONE}>Done</SelectItem>
+                        <SelectItem value={TaskStatus.BACKLOG}>Backlog</SelectItem>
                     </SelectContent>
                 </Select>
 
                 <Select
-                    value={assigneeId || "all"}
+                    value={filters.assigneeId || "all"}
                     onValueChange={onAssigneeChange}
                 >
                     <SelectTrigger className="h-8 w-[150px]">
@@ -90,9 +124,10 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
                     </SelectContent>
                 </Select>
 
-                {!hideProjectFilter && (
+                {/* Only show project filter when not in project view and hideProjectFilter is false */}
+                {!hideProjectFilter && !isProjectViewMode && (
                     <Select
-                        value={projectId || "all"}
+                        value={currentProjectId || "all"}
                         onValueChange={onProjectChange}
                     >
                         <SelectTrigger className="h-8 w-[150px]">
@@ -110,8 +145,8 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
                 )}
 
                 <DatePicker
-                    value={dueDate ? new Date(dueDate) : undefined}
-                    onChange={(date) => setFilters({ dueDate: date?.toISOString() })}
+                    value={filters.dueDate ? new Date(filters.dueDate) : undefined}
+                    onChange={onDateChange}
                     placeholder="Due date"
                     className="h-8 w-[150px]"
                 />

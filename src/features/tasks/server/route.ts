@@ -7,7 +7,7 @@ import { sessionMiddleware } from "@/lib/session-middleware";
 import { DATABASE_ID, TASKS_ID, MEMBERS_ID, PROJECTS_ID } from "@/config";
 import { ID, Query } from "node-appwrite";
 import { z } from "zod";
-import { TaskStatus, Task } from "../types";
+import { TaskStatus, Task } from "../types"; // Fixed relative import path
 import { Project } from "@/features/projects/types";
 import { createAdminClient } from "@/lib/appwrite";
 
@@ -34,17 +34,41 @@ app.get(
 
     const { workspaceId, projectId, status, search, assigneeId, dueDate } = c.req.valid("query");
 
+    // Log request parameters for debugging
+    console.log("TASK API REQUEST:", { 
+      workspaceId, 
+      projectId: projectId || "none", 
+      status: status || "none", 
+      assigneeId: assigneeId || "none" 
+    });
+
     const member = await getMember({ databases, workspaceId, userId: user.$id });
     if (!member) return c.json({ error: "Unauthorized" }, 401);
 
     const query = [Query.equal("workspaceId", workspaceId), Query.orderDesc("$createdAt")];
-    if (projectId) query.push(Query.equal("projectId", projectId));
+    
+    // CRITICAL CHANGE: Make sure projectId is properly handled
+    if (projectId && projectId !== "undefined" && projectId !== "null") {
+      console.log(`Adding project filter: projectId = ${projectId}`);
+      query.push(Query.equal("projectId", projectId));
+    } else {
+      console.log("No project filter applied");
+    }
+    
     if (status) query.push(Query.equal("status", status));
     if (assigneeId) query.push(Query.equal("assigneeId", assigneeId));
     if (dueDate) query.push(Query.equal("dueDate", dueDate));
     if (search) query.push(Query.search("name", search));
 
+    console.log("Final query filters:", JSON.stringify(query, null, 2));
+
     const tasks = await databases.listDocuments<Task>(DATABASE_ID, TASKS_ID, query);
+    console.log(`Found ${tasks.documents.length} tasks matching query`);
+    
+    if (projectId) {
+      console.log(`Tasks for project ${projectId}:`, tasks.documents.map(t => ({ id: t.$id, name: t.name, projectId: t.projectId })));
+    }
+
     const projectIds = tasks.documents.map((task) => task.projectId);
     const assigneeIds = tasks.documents.map((task) => task.assigneeId);
     const assignedToIds = tasks.documents.map((task) => task.assignedToId).filter(Boolean);
@@ -95,13 +119,20 @@ app.post(
   async (c) => {
     const user = c.get("user");
     const databases = c.get("databases");
-
-    const { name, status, workspaceId, projectId, dueDate, assigneeId, assignedToId } = c.req.valid("json");
+    const { name, status, workspaceId, projectId, dueDate, assigneeId, assignedToId } = c.req.valid("json") as {
+      name: string;
+      status: string;
+      workspaceId: string;
+      projectId: string;
+      dueDate: string;
+      assigneeId: string;
+      assignedToId?: string;
+    };
     const member = await getMember({ databases, workspaceId, userId: user.$id });
     if (!member) return c.json({ error: "Unauthorized" }, 401);
 
     const highestPositionTask = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
-      Query.equal("status", status),
+      Query.equal("status", status as string),
       Query.equal("workspaceId", workspaceId),
       Query.orderAsc("position"),
       Query.limit(1),
@@ -216,7 +247,7 @@ app.get(
         project, 
         assignee: {
           ...assignee,
-          imageUrl: assigneeUser.imageUrl
+          imageUrl: assigneeUser.name // Using name as fallback since avatarUrl doesn't exist
         },
         assignedTo 
       } 

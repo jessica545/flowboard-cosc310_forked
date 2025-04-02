@@ -1,10 +1,10 @@
-import { useQueryState, parseAsString } from "nuqs";
+import { useState } from "react";
 
 export const useEditTaskModal = () => {
-  const [taskId, setTaskId] = useQueryState("edit-task", parseAsString);
+  const [taskId, setTaskId] = useState<string | null>(null);
 
-  const open = (id: string) => setTaskId(id); // ✅ Pass the actual task ID, not `true`
-  const close = () => setTaskId(null);        // ✅ Correct syntax
+  const open = (id: string) => setTaskId(id);
+  const close = () => setTaskId(null);
 
   return {
     taskId,

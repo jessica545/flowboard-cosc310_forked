@@ -2,7 +2,7 @@ import { createTaskSchema } from "../schemas";
 import { useCreateTask } from "../api/use-create-tasks";
 import { DatePicker } from "@/components/date-picker";
 import { MemberAvatar } from "@/features/members/components/member-avatar"; // TODO: FB-3025
-import { TaskStatus } from "../types";
+import { TaskStatus } from "@/features/tasks/types"; // Fixed import path
 import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 import {
     Select,
@@ -22,31 +22,51 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DottedSeparator } from "@/components/ui/dotted-separator";
 import { cn } from "@/lib/utils";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
 interface CreateTaskFormProps {
     onCancel?: () => void;
     projectOptions: { id: string; name: string; imageUrl: string }[];
     memberOptions: { id: string; name: string }[];
+    initialProjectId?: string;
 }
 
-export const CreateTaskForm = ({ onCancel, projectOptions, memberOptions }: CreateTaskFormProps) => {
+export const CreateTaskForm = ({ onCancel, projectOptions, memberOptions, initialProjectId }: CreateTaskFormProps) => {
     const workspaceId = useWorkspaceId();
     const router = useRouter();
     const { mutate, isPending } = useCreateTask();
 
     const form = useForm<z.infer<typeof createTaskSchema>>({
         resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
-        defaultValues: { workspaceId },
+        defaultValues: { 
+            workspaceId,
+            projectId: initialProjectId || '',
+            status: TaskStatus.TODO // Set a default status
+        },
     });
 
+    // Update the project ID when it changes (for example, when opening from a project page)
+    useEffect(() => {
+        if (initialProjectId) {
+            form.setValue('projectId', initialProjectId);
+        }
+    }, [initialProjectId, form]);
+
     const onSubmit = (values: z.infer<typeof createTaskSchema>) => {
+        console.log("Creating task with values:", { ...values, workspaceId });
+        
         mutate(
             { json: { ...values, workspaceId } },
             {
-                onSuccess: () => {
+                onSuccess: (data) => {
+                    console.log("Task created successfully:", data);
                     form.reset();
                     onCancel?.();
+                    
+                    // If the task was created for a specific project, navigate to that project
+                    if (values.projectId) {
+                        router.refresh();
+                    }
                 },
             }
         );

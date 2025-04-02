@@ -29,4 +29,4 @@ export const useDeleteMember = () => {
       toast.error("Failed to delete member");
     },
   });
-};
+}; 
