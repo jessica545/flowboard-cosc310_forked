@@ -10,7 +10,7 @@ import React from "react";
 const routes = [
     {
         label: "Home",
-        href: "", // Changed to avoid URL issues
+        href: "/",
         icon: GoHome,
         activeIcon: GoHomeFill,
     },    
