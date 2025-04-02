@@ -5,6 +5,7 @@ import {cn} from "@/lib/utils";
 import "./globals.css";
 import {QueryProvider} from "@/components/query-provider";
 import {Toaster} from "@/components/ui/sonner";
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -25,10 +26,12 @@ export default function RootLayout({
             className={cn(inter.className, "antialiased h-full")}
         >
         <QueryProvider>
-            <Toaster/>
-            <main className="h-full">
-              {children}
-            </main>
+            <NuqsAdapter>
+                <Toaster/>
+                <main className="h-full">
+                  {children}
+                </main>
+            </NuqsAdapter>
         </QueryProvider>
         </body>
         </html>
