@@ -53,14 +53,14 @@ export function ConversationHeader({
     <div className="border-b p-4 flex items-center gap-3 bg-white">
       <div className="flex -space-x-2">
         {displayMembers.map((member) => (
-          <Avatar key={member.id} className="border-2 border-white">
-            <AvatarFallback className="bg-blue-500 text-white">
+          <Avatar key={member.id} className="border-2 border-white rounded-md">
+            <AvatarFallback className="text-white bg-blue-600 font-semibold text-lg uppercase rounded-md">
               {member.name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         ))}
         {additionalCount > 0 && (
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium border-2 border-white">
+          <div className="w-10 h-10 rounded-md bg-gray-200 flex items-center justify-center text-sm font-medium border-2 border-white">
             +{additionalCount}
           </div>
         )}

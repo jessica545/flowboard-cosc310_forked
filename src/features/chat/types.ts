@@ -19,6 +19,7 @@ export interface Conversation {
   createdAt: string;
   updatedAt: string;
   lastMessage?: Message;
+  memberIds?: string[];
 }
 
 export interface ChatState {
@@ -30,5 +31,7 @@ export interface ChatState {
 export interface User {
   id: string;
   name: string;
+  email?: string;
   avatar?: string;
+  role?: string;
 } 

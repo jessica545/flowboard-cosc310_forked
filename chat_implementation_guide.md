@@ -12,6 +12,24 @@ This guide provides a function-by-function approach to implementing basic chat f
   - Client-side component setup
   - Route handling with middleware
 
+- **v0.2.0**: Message Input Component (Completed)
+  - Form implementation
+  - Input validation
+  - Submit handling
+  - Loading states
+
+- **v0.3.0**: Message Bubble Component (Completed)
+  - Message display
+  - User attribution
+  - Timestamps
+  - Layout variants
+
+- **v0.4.0**: Member and Group Chat Integration (Current)
+  - Direct messaging
+  - Group chat functionality
+  - Member status indicators
+  - Real-time presence
+
 ### Required Setup
 1. **Middleware Configuration**
    - File: `src/middleware.ts`
@@ -21,20 +39,24 @@ This guide provides a function-by-function approach to implementing basic chat f
 2. **Component Structure**
    ```
    src/features/chat/
-   ├── components/               # UI Components
-   │   ├── chat-container.tsx   # Main layout wrapper (completed)
-   │   ├── message-list.tsx     # Message display area (placeholder)
-   │   ├── message-input.tsx    # Input component (placeholder)
-   │   └── __tests__/          # Component tests
+   ├── components/                      # UI Components
+   │   ├── chat-container.tsx          # Main layout wrapper (completed)
+   │   ├── conversation-list.tsx       # List of chats (new)
+   │   ├── create-conversation.tsx     # New chat dialog (new)
+   │   ├── conversation-header.tsx     # Chat header with member info (new)
+   │   ├── message-list.tsx           # Message display area
+   │   ├── message-input.tsx          # Input component
+   │   └── __tests__/                 # Component tests
    ```
 
 3. **Route Structure**
    ```
    src/app/
-   └── (dashboard)/
-       └── [workspaceId]/
-           └── chat/
-               └── page.tsx     # Chat page component
+   └── (standalone)/
+       └── workspaces/
+           └── [workspaceId]/
+               └── chat/
+                   └── page.tsx        # Chat page component
    ```
 
 ### Versioning Strategy
@@ -46,7 +68,7 @@ Each function gets its own version number and must pass all tests before proceed
   - Layout placeholders
   - Client component setup
 
-- **v0.2.0**: Message Input Component (Next)
+- **v0.2.0**: Message Input Component
   - Form implementation
   - Input validation
   - Submit handling
@@ -58,11 +80,11 @@ Each function gets its own version number and must pass all tests before proceed
   - Timestamps
   - Layout variants
 
-- **v0.4.0**: Message Sending API
-  - API endpoints
-  - Error handling
-  - Optimistic updates
-  - Rate limiting
+- **v0.4.0**: Member and Group Chat Integration
+  - Conversation management
+  - Member selection
+  - Group creation
+  - Real-time presence
 
 - **v0.5.0**: Message Fetching API
   - Query implementation
@@ -354,46 +376,37 @@ export function MessageBubble({ message }: { message: Message }) {
    - [ ] Short messages display properly
    - [ ] Timestamps are visible
 
-### v0.4.0: Message Sending API
+### v0.4.0: Member and Group Chat Integration
 **Files to Create/Modify:**
-- `/src/features/chat/server/route.ts` (Create)
-- `/src/features/chat/api/use-send-message.ts` (Create)
 - `/src/features/chat/types.ts` (Update)
-- `/src/features/chat/constants.ts` (Create)
-- `/src/features/members/api/use-get-member.ts` (Import)
+- `/src/features/chat/components/conversation-list.tsx` (Create)
+- `/src/features/chat/components/create-conversation-dialog.tsx` (Create)
+- `/src/features/chat/api/use-conversations.ts` (Create)
+- `/src/features/chat/hooks/use-online-status.ts` (Create)
 
 ```typescript
-// src/features/chat/server/route.ts
-app.post("/messages", sessionMiddleware, async (c) => {
-  const user = c.get("user");
-  const databases = c.get("databases");
-  const { content, conversationId, workspaceId } = await c.req.json();
+// src/features/chat/types.ts
+export type ChatType = 'direct' | 'group';
 
-  // Verify user is a member of the workspace
-  const member = await databases.getDocument(
-    DATABASE_ID,
-    MEMBERS_ID,
-    `${workspaceId}_${user.$id}`
-  );
+export interface Conversation {
+  id: string;
+  type: ChatType;
+  name?: string;
+  participants: Member[];
+  workspaceId: string;
+  createdAt: string;
+  updatedAt: string;
+  lastMessage?: Message;
+}
 
-  if (!member) {
-    return c.json({ error: "Not a workspace member" }, 403);
-  }
-
-  const message = await databases.createDocument(
-    DATABASE_ID,
-    MESSAGES_ID,
-    ID.unique(),
-    {
-      content,
-      conversationId,
-      workspaceId,
-      senderId: user.$id,
-    }
-  );
-
-  return c.json({ data: message });
-});
+export interface Member {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role: string;
+  isOnline?: boolean;
+}
 ```
 
 **Appwrite Setup:**
@@ -425,32 +438,25 @@ app.post("/messages", sessionMiddleware, async (c) => {
 #### Test Strategy v0.4.0
 1. **Jest Unit Tests**
 ```typescript
-   // src/features/chat/api/__tests__/use-send-message.test.ts
-   describe('useSendMessage', () => {
-     it('sends message successfully', async () => {
-       const { result } = renderHook(() => useSendMessage());
-       await act(async () => {
-         await result.current.mutateAsync({ content: 'Test' });
-       });
-       expect(result.current.isSuccess).toBe(true);
+   // __tests__/features/chat/conversation-list.test.tsx
+   describe('ConversationList', () => {
+     it('renders conversations correctly', () => {
+       render(<ConversationList workspaceId="123" />);
+       // Test implementation
      });
-
-     it('handles empty messages', async () => {
-       const { result } = renderHook(() => useSendMessage());
-       await act(async () => {
-         await result.current.mutateAsync({ content: '' });
-       });
-       expect(result.current.error).toBeDefined();
-  });
-});
+     
+     it('handles new conversation creation', () => {
+       // Test implementation
+     });
+   });
 ```
 
 2. **Visual Inspection**
-   - [ ] Message appears in chat after sending
-   - [ ] Loading state shows while sending
-   - [ ] Error message displays if send fails
-   - [ ] Input field clears after successful send
-   - [ ] Send button disabled during sending
+   - [ ] New conversations appear in the list
+   - [ ] Conversation list is sorted by last message date
+   - [ ] Conversation name is displayed correctly
+   - [ ] Online status indicator is displayed
+   - [ ] Clicking on a conversation opens the chat
 
 ### v0.5.0: Message Fetching API
 **Files to Create/Modify:**

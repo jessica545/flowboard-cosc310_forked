@@ -20,9 +20,15 @@ interface MessageInputProps {
   onSubmit: (data: MessageFormData) => Promise<void>;
   isLoading?: boolean;
   error?: string | null;
+  disabled?: boolean;
 }
 
-export function MessageInput({ onSubmit, isLoading = false, error = null }: MessageInputProps) {
+export function MessageInput({ 
+  onSubmit, 
+  isLoading = false, 
+  error = null,
+  disabled = false 
+}: MessageInputProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -46,6 +52,8 @@ export function MessageInput({ onSubmit, isLoading = false, error = null }: Mess
     }
   };
 
+  const isDisabled = isLoading || isSubmitting || disabled;
+
   return (
     <div className="p-4">
       <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-2">
@@ -58,19 +66,20 @@ export function MessageInput({ onSubmit, isLoading = false, error = null }: Mess
           <input
             {...register('content')}
             type="text"
-            placeholder="Type a message..."
+            placeholder={disabled ? "Select a conversation to start chatting" : "Type a message..."}
             className={cn(
               "flex-1 px-4 py-2.5 bg-neutral-50 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all",
-              errors.content && "border-red-500 focus:ring-red-500/20 focus:border-red-500/50"
+              errors.content && "border-red-500 focus:ring-red-500/20 focus:border-red-500/50",
+              disabled && "bg-gray-100 text-gray-400"
             )}
-            disabled={isLoading || isSubmitting}
+            disabled={isDisabled}
           />
           <button
             type="submit"
-            disabled={isLoading || isSubmitting}
+            disabled={isDisabled}
             className={cn(
               "px-4 py-2.5 bg-blue-500 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all flex items-center justify-center min-w-[40px]",
-              (isLoading || isSubmitting) && "opacity-50 cursor-not-allowed"
+              isDisabled && "opacity-50 cursor-not-allowed"
             )}
             aria-label="Send"
           >

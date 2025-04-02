@@ -46,15 +46,6 @@ This PR addresses the nuqs adapter configuration error that arose after merging 
 
 ### 2. Chat Feature Improvements
 
-
-- Used the app router specific adapter: `nuqs/adapters/next/
-app`
-- Wrapped the application content with `NuqsAdapter`
-- Maintained existing providers structure (QueryProvider 
-remains the outer wrapper)
-- Ensured proper nesting of components for optimal state 
-management
-
 #### 2.1 Form Reset in Create Conversation Dialog
 - Issue: Form state persisted between dialog opens/closes
 - Solution:
@@ -154,6 +145,32 @@ management
   export const DELETE = handle(app); // Added DELETE handler
   ```
 
+#### 2.7 Fixed Critical User ID Inconsistency in Chat System
+- Issue: Messages were not appearing on receiver's end due to ID mismatch
+- Root cause: Inconsistent ID handling between member display and authorization checks
+  - UI was using document IDs (`member.$id` or `member.id`)
+  - Server auth checks were using user IDs (`user.$id`)
+- Solution: Updated member ID mapping to consistently use the user ID
+  ```typescript
+  // src/features/chat/api/use-get-members.ts
+  const members: User[] = data.documents.map((member: any) => {
+    // IMPORTANT: Use userId for consistent ID handling
+    // This matches the ID used in authorization checks
+    const memberId = member.userId || 'unknown-id';
+    
+    return {
+      id: memberId, // Use userId for consistency
+      name: member.name || 'Unknown User',
+      email: member.email,
+      avatar: member.avatar || '',
+    };
+  });
+  ```
+- This ensures:
+  - The member IDs displayed in conversation creation match server expectations
+  - Both sender and receiver have proper access to conversations
+  - Authorization checks work correctly across the system
+
 ### 3. Testing Steps ✅
 1. Cleared Next.js cache: `rm -rf .next`
 2. Restarted development server
@@ -168,6 +185,7 @@ management
    - Selecting members
    - Editing conversation names
    - Viewing avatars with consistent styling
+   - Message sending/receiving between different users
 
 ## Current Status
 - ✅ nuqs adapter error resolved
@@ -175,16 +193,21 @@ management
 - ✅ All modals functioning properly
 - ✅ Clean configuration in place
 - ✅ Chat feature bugs fixed and UI refined
+- ✅ Message sending/receiving working correctly
+- ✅ Avatar display consistent with design
 
 ## Technical Notes
 - This fix aligns with nuqs 2.4.1 best practices
 - Follows Next.js 14.2.0+ requirements for URL state management
 - Maintains compatibility with existing React Query setup
 - Improved error handling and debug logging
+- Ensures consistent ID handling across frontend and backend
+- Added real-time polling for message updates
 
 ## Dependencies
 - nuqs: ^2.4.1
 - next: ^14.2.24
+- appwrite: latest
 
 ## Documentation References
 - [nuqs Adapters Documentation](https://nuqs.47ng.com/docs/adapters)

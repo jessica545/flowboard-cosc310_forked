@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Message } from '../types';
 import { MessageBubble } from './message-bubble';
+import { useCurrent } from '@/features/auth/api/use-current';
 
 interface MessageListProps {
   messages?: Message[];
@@ -13,6 +14,7 @@ interface MessageListProps {
 
 export function MessageList({ messages = [], isLoading = false, error = null }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { data: currentUser } = useCurrent();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,13 +50,15 @@ export function MessageList({ messages = [], isLoading = false, error = null }: 
     );
   }
 
+  const currentUserId = currentUser?.$id || 'current-user';
+
   return (
     <div role="main" className="p-4 space-y-6" data-testid="message-list">
       {messages.map((message) => (
         <MessageBubble
           key={message.id}
           message={message}
-          isCurrentUser={message.senderId === 'current-user'}
+          isCurrentUser={message.senderId === currentUserId}
         />
       ))}
       {isLoading && (
