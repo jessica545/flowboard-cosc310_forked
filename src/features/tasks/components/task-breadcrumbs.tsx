@@ -32,7 +32,7 @@ export const TaskBreadcrumbs = ({
             },
         });
     };
-    
+
     return (
         <div className="flex items-center gap-x-2">
             <ProjectAvatar 

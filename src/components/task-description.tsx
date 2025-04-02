@@ -1,11 +1,10 @@
 import { Task } from "@/features/tasks/types";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Pencil, PencilIcon, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { DottedSeparator } from "./ui/dotted-separator";
 import { useUpdateTask } from "@/features/tasks/api/use-update-task";
-import { toast } from "sonner";
 
 interface TaskDescriptionProps {
     task: Task;
@@ -15,42 +14,32 @@ export const TaskDescription = ({
     task,
 }: TaskDescriptionProps) => {
     const [ isEditing, setIsEditing ] = useState(false);
-    const [ value, setValue ] = useState(task.description || "");
-    const { mutate, isPending } = useUpdateTask();
-    
-    // Update value if task description changes
+    const [ value, setValue ] = useState(task.description);
+    const { mutate, isPending, isSuccess, reset } = useUpdateTask();
+
+    // Reset the value when the task changes
     useEffect(() => {
-        setValue(task.description || "");
+        setValue(task.description);
     }, [task.description]);
 
-    const handleSave = () => {
-        if (!task.$id) {
-            console.error("Task ID is missing");
-            toast.error("Cannot save description: Task ID is missing");
-            return;
+    // Close edit mode when save is successful
+    useEffect(() => {
+        if (isSuccess) {
+            setIsEditing(false);
+            reset(); // Reset the mutation state
         }
-        
-        console.log("Saving task description:", { taskId: task.$id, description: value });
-        mutate(
-            {
-                json: { description: value },
-                param: { taskId: task.$id },
-            },
-            {
-                onSuccess: (data) => {
-                    console.log("Description updated successfully:", data);
-                    setIsEditing(false);
-                },
-                onError: (error) => {
-                    console.error("Failed to update description:", error);
-                    toast.error("Failed to save description. Please try again.");
-                }
-            }
-        );
+    }, [isSuccess, reset]);
+
+    const handleSave = () => {
+        console.log("Saving task description for task ID:", task.$id);
+        mutate({
+            json: { description: value },
+            param: { taskId: task.$id },
+        });
     }
 
     return(
-        <div className="p-4 border-1 rounded-lg bg-tertiary">
+        <div className="p-4 border rounded-lg">
             <div className="flex items-center justify-between">
                 <p className="text-lg font-semibold">
                     Description
@@ -59,7 +48,7 @@ export const TaskDescription = ({
                     onClick={() => setIsEditing((prev) => !prev)}
                     size="sm"
                     variant="secondary"
-                    className="bg-quaternary hover:bg-[var(--primary-foreground)]"
+                    disabled={isPending}
                 >
                     {isEditing ? (
                         <XIcon className="size-4 mr-2" />
@@ -99,4 +88,4 @@ export const TaskDescription = ({
             )}
         </div>
     );
-};
+}

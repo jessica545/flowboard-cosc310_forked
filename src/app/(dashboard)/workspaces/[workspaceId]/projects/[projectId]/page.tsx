@@ -32,27 +32,26 @@ const ProjectIdPage = async ({
     projectId: params.projectId,
    });
 
-    return (
-        <div className="flex flex-col gap-y-4 p-4">
-            {/* Project Header with Edit Button */}
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-x-2">
-                    <ProjectAvatar 
-                    name={initialValues.name}
-                    image={initialValues.ImageUrl}
-                    className="size-8"    
-                     />
-                    <p className="text-lg font-semibold"> {initialValues.name}</p>
-                </div>
-                <div>
-                    <Button variant="secondary" size="sm" asChild>
-                        <Link href={`/workspaces/${initialValues.workspaceId}/projects/${initialValues.$id}/settings`}>
-                        <PencilIcon className="size-4 mr-2" />
-                        Edit Project
-                        </Link>
-                    </Button>
-                </div>
+   return (
+    <div className="flex flex-col gap-y-4">
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-x-2">
+                <ProjectAvatar 
+                name={initialValues.name}
+                image={initialValues.ImageUrl}
+                className="size-8"    
+                 />
+                <p className="text-lg font-semibold"> {initialValues.name}</p>
             </div>
+            <div>
+                <Button variant="secondary" size="sm" asChild>
+                    <Link href={`/workspaces/${initialValues.workspaceId}/projects/${initialValues.$id}/settings`}>
+                    <PencilIcon className="size-4 mr-2" />
+                    Edit Project
+                    </Link>
+                </Button>
+            </div>
+        </div>
 
             {/* Project Analytics */}
             {analyticsData && <Analytics data={analyticsData} />}

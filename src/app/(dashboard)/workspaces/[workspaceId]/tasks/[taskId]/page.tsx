@@ -8,4 +8,4 @@ const TaskIdPage = async() => {
     return <TaskIdClient/>
 }
 
-export default TaskIdPage;
+export default TaskIdPage; 

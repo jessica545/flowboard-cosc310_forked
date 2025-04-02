@@ -18,17 +18,27 @@ export const useUpdateTask = () => {
     mutationFn: async ({ json, param }) => {
       console.log("Updating task with:", { json, param });
       try {
+        if (!param.taskId) {
+          console.error("Task ID is missing in update request");
+          throw new Error("Task ID is required for updating a task");
+        }
+
         // @ts-ignore
         const response = await client.api.tasks[":taskId"]["$patch"]({ json, param });
         
         if (!response.ok) {
           const errorText = await response.text();
-          console.error("Failed to update task:", errorText);
+          console.error("Failed to update task:", response.status, errorText);
           throw new Error(`Failed to update task: ${errorText}`);
         }
         
         const result = await response.json();
         console.log("Task update successful:", result);
+        
+        if (!result.data) {
+          throw new Error("No data returned from update operation");
+        }
+        
         return result;
       } catch (error) {
         console.error("Error in useUpdateTask:", error);
@@ -36,7 +46,7 @@ export const useUpdateTask = () => {
       }
     },
     onSuccess: (data) => {
-      toast.success("Task updated");
+      toast.success("Task updated successfully");
       
       // Handle task assignment notifications
       if (data.data.assigneeId || data.data.assignedToId) {

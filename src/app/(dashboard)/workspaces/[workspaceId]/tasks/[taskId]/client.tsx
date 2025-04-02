@@ -1,7 +1,7 @@
 "use client";
 
 import { PageError } from "@/components/page-error";
-import PageLoader from "@/components/page-loader";
+import { PageLoader } from "@/components/page-loader";
 import { useGetTask } from "@/features/tasks/api/use-get-task";
 import { useTaskId } from "@/features/tasks/hooks/use-task-id";
 import { Button } from "@/components/ui/button";
@@ -23,34 +23,40 @@ export const TaskIdClient = () => {
     const { open: openEditModal } = useEditTaskModal();
 
     useEffect(() => {
-        if (taskId) {
-            console.log("Current task ID:", taskId);
-        }
-        if (error) {
-            console.error("Error loading task:", error);
-        }
-        if (data) {
-            console.log("Task data loaded:", data);
-        }
+        console.log("Task ID in client:", taskId);
+        console.log("Task data:", data);
+        console.log("Error:", error);
     }, [taskId, data, error]);
 
-    if (isLoading) return <PageLoader isLoaded />;
-    if (error) return <PageError message={`Error loading task: ${error.message}`} />;
-    if (!data) return <PageError message="Task not found" />;
+    if (isLoading) return <PageLoader />;
+    
+    if (error) {
+        console.error("Error loading task:", error);
+        return <PageError message={`Error loading task: ${error.message}`} />;
+    }
+    
+    if (!data) {
+        console.log("No task data available for ID:", taskId);
+        return <PageError message="Task not found. The task may have been deleted or you don't have permission to access it." />;
+    }
+
+    if (!data.project) {
+        console.warn("Task found but project data is missing:", data);
+    }
 
     return (
-        <div className="flex flex-col gap-6 p-6 bg-secondary rounded-md">
+        <div className="flex flex-col gap-6 p-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <ProjectAvatar
                         className="size-8"
-                        name={data.project?.name || "Unknown Project"}
+                        name={data.project?.name}
                         image={data.project?.ImageUrl}
                     />
                     <div className="flex items-center gap-2 text-muted-foreground">
-                        <span>{data.project?.name || "Unknown Project"}</span>
+                        <span>{data.project?.name}</span>
                         <span>›</span>
-                        <span className="font-medium text-foreground">{data.name || "Untitled Task"}</span>
+                        <span className="font-medium text-foreground">{data.name}</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -62,7 +68,7 @@ export const TaskIdClient = () => {
                         <PencilIcon className="size-4 mr-2" />
                         Edit
                     </Button>
-                    <TaskActions id={data.$id} projectId={data.projectId || ""}>
+                    <TaskActions id={data.$id} projectId={data.projectId}>
                         <Button variant="outline" size="sm">
                             <MoreVertical className="size-4" />
                         </Button>
@@ -71,7 +77,7 @@ export const TaskIdClient = () => {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <Card className="bg-tertiary border-1 shadow-none">
+                <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                         <CardTitle className="text-base font-medium">Overview</CardTitle>
                         <Button 
@@ -100,21 +106,6 @@ export const TaskIdClient = () => {
                             )}
                         </div>
                         <div>
-                            <h3 className="text-sm text-muted-foreground mb-1">Assigned To</h3>
-                            {data.assignedTo ? (
-                                <div className="flex items-center gap-2">
-                                    <MemberAvatar
-                                        className="size-6"
-                                        name={data.assignedTo.name}
-                                        image={data.assignedTo.imageUrl}
-                                    />
-                                    <span className="text-sm">{data.assignedTo.name}</span>
-                                </div>
-                            ) : (
-                                <span className="text-sm text-muted-foreground">Not assigned</span>
-                            )}
-                        </div>
-                        <div>
                             <h3 className="text-sm text-muted-foreground mb-1">Due Date</h3>
                             <span className="text-sm">
                                 {data.dueDate ? format(new Date(data.dueDate), "MMMM do, yyyy") : "No due date"}
@@ -133,4 +124,4 @@ export const TaskIdClient = () => {
             </div>
         </div>
     );
-}
+} 
