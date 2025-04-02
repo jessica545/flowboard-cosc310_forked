@@ -2,7 +2,7 @@
 
 import { useGetProject } from "@/features/projects/api/use-get-project";
 import { EditProjectForm } from "@/features/projects/components/edit-project-form";
-import {PageLoader }from "@/components/page-loader";
+import { PageLoader } from "@/components/page-loader";
 import { PageError } from "@/components/page-error";
 
 interface ProjectSettingsClientProps {

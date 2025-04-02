@@ -1,6 +1,6 @@
 "use client"
 
-import PageLoader from "@/components/page-loader";
+import { PageLoader } from "@/components/page-loader";
 import { useEffect, useState } from "react";
 
 const LoadingPage = () => {
@@ -14,7 +14,7 @@ const LoadingPage = () => {
 
     return (
         <div className="h-screen flex flex-col items-center justify-center">
-            <PageLoader isLoaded={isAppReady}/>
+            {!isAppReady && <PageLoader />}
         </div>
     );
 }

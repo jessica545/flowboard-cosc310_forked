@@ -130,6 +130,39 @@ app.get(
     }
 );
 
+// Fetch a single project by ID
+app.get(
+    "/:projectId",
+    sessionMiddleware,
+    async (c) => {
+        const databases = c.get("databases");
+        const user = c.get("user");
+        const { projectId } = c.req.param();
+
+        try {
+            const project = await databases.getDocument<Project>(
+                DATABASE_ID,
+                PROJECTS_ID,
+                projectId
+            );
+
+            const member = await getMember({
+                workspaceId: project.workspaceId,
+                userId: user.$id,
+                databases,
+            });
+
+            if (!member) {
+                return c.json({ error: "Unauthorized" }, 401);
+            }
+
+            return c.json({ data: project });
+        } catch (error) {
+            return c.json({ error: "Project not found" }, 404);
+        }
+    }
+);
+
 // Update workspace details
 app.patch(
     "/:projectId", 

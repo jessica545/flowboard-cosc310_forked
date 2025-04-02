@@ -12,7 +12,7 @@ import { ProjectAvatar } from "@/features/projects/components/project-avatar";
 
 import { Button } from "@/components/ui/button";
 import { PageError } from "@/components/page-error";
-import PageLoader from "@/components/page-loader";
+import { PageLoader } from "@/components/page-loader";
 
 export const ProjectIdClient = () => {
     const projectId = useProjectId();
@@ -22,7 +22,7 @@ export const ProjectIdClient = () => {
     const isLoading = isLoadingProject || isLoadingAnalytics;
     
     if (isLoading) {
-        return <PageLoader isLoaded/>
+        return <PageLoader />
     }
     if (!project) {
         return <PageError message="Project not found" />
