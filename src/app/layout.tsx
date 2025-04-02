@@ -5,7 +5,9 @@ import {cn} from "@/lib/utils";
 import "./globals.css";
 import {QueryProvider} from "@/components/query-provider";
 import {Toaster} from "@/components/ui/sonner";
-import { NuqsAdapter } from 'nuqs/adapters/next/app';
+
+import { ThemeWrapper } from "@/features/settings/components/theme-wrapper";
+
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -16,25 +18,24 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
+    children,
+}: Readonly<{
     children: React.ReactNode;
 }>) {
+
     return (
-        <html lang="en" className="h-full">
+            <ThemeWrapper>
+        <html lang="en">
         <body
-            className={cn(inter.className, "antialiased h-full")}
+            className={cn(inter.className, "antialiased min-h-screen")}
         >
-        <QueryProvider>
-            <NuqsAdapter>
-                <Toaster/>
-                <main className="h-full">
-                  {children}
-                </main>
-            </NuqsAdapter>
-        </QueryProvider>
+                <QueryProvider>
+                    <Toaster/>
+                    {children}
+                </QueryProvider>
         </body>
         </html>
+            </ThemeWrapper>
     );
 
 }

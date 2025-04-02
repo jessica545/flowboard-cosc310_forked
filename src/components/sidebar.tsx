@@ -8,13 +8,17 @@ import { WorkspaceSwitcher } from "@/components/workspace-switcher";
 
 export const Sidebar = () => {
     return (
-        <aside className="h-full min-h-screen bg-neutral-100 p-4 w-64 flex-shrink-0 flex flex-col">
-            {/* Logo */}
-            <Link href="/" aria-label="Go to Home">
-                <Image src="/logo.svg" alt="Company Logo" width={164} height={48} priority />
-            </Link>
 
-            <DottedSeparator className="my-4" />
+        <aside className="h-full bg-secondary p-4 w-full">
+            {/* Logo */}
+            <div className="relative w-[232px] h-[56px]">
+                <Link href="/" aria-label="Go to Home">
+                    <Image src="/Flowboard Logo Light Banner-01.svg" alt="Company Logo" fill className="block dark:hidden" priority/>
+                    <Image src="/Flowboard Logo Dark Banner-01.svg" alt="Company Logo" fill className="hidden dark:block" priority/>
+                </Link>
+            </div>
+
+            <DottedSeparator className="mb-4" />
             <WorkspaceSwitcher />
             <DottedSeparator className="my-4" />
             <Navigation />
