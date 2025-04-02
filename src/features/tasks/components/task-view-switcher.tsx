@@ -59,16 +59,16 @@ export const TaskViewSwitcher = ({ hideProjectFilter, forceProjectId }: TaskView
         <Tabs defaultValue={view} onValueChange={setView} className="flex-1 w-full border rounded-lg">
             <div className="h-full flex flex-col overflow-auto p-4">
                 <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
-                    <TabsList className="w-full lg:w-auto bg-transparent p-1 gap-1 [&>*:not(:data-state=active)]:bg-transparent">
-                        <TabsTrigger 
-                            className="h-8 w-full lg:w-auto rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-white dark:data-[state=active]:text-[#1F2937] text-[#1F2937] dark:text-white transition-colors" 
+                    <TabsList className="bg-transparent dark:bg-white/60 p-1 gap-1">
+                        <TabsTrigger
                             value="table"
+                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-white dark:text-gray-800 dark:data-[state=inactive]:bg-white/50"
                         >
                             Table
                         </TabsTrigger>
-                        <TabsTrigger 
-                            className="h-8 w-full lg:w-auto rounded-md data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-white dark:data-[state=active]:text-[#1F2937] text-[#1F2937] dark:text-white transition-colors" 
+                        <TabsTrigger
                             value="kanban"
+                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-white dark:text-gray-800 dark:data-[state=inactive]:bg-white/50"
                         >
                             Kanban
                         </TabsTrigger>

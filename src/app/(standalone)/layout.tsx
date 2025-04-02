@@ -6,9 +6,9 @@ interface StandaloneLayoutProps{
 
 const StandaloneLayout = ({ children }: StandaloneLayoutProps) => {
     return (
-        <main className = "bg-neutral-100 min-h-screen">
+        <main className="bg-neutral-100 dark:bg-[#1F2937] min-h-screen">
             <div className="mx-auto max-w-screen-2xl p-4">
-                <nav className="flex justify-between items-center h-[73px]">
+                <nav className="flex justify-between items-center h-[73px] mb-4 rounded-lg bg-neutral-100 dark:bg-[#1F2937] shadow-sm">
                     <div></div>
                     <UserButton/>
                 </nav>
