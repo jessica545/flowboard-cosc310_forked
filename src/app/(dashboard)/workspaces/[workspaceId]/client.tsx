@@ -61,9 +61,7 @@ export const WorkspaceIdClient = async () => {
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-medium">Tasks ({tasks?.total || 0})</h3>
-            <Button size="sm" variant="ghost">
-              <PlusIcon className="h-4 w-4" />
-            </Button>
+          
           </div>
           
           {tasks?.documents && tasks.documents.length > 0 ? (
@@ -103,9 +101,7 @@ export const WorkspaceIdClient = async () => {
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-medium">Projects ({projects?.total || 0})</h3>
-            <Button size="sm" variant="ghost">
-              <PlusIcon className="h-4 w-4" />
-            </Button>
+            
           </div>
           
           {projects?.documents && projects.documents.length > 0 ? (
@@ -135,9 +131,7 @@ export const WorkspaceIdClient = async () => {
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mt-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-medium">Members ({members?.total || 0})</h3>
-          <Button size="sm" variant="ghost">
-            <PlusIcon className="h-4 w-4" />
-          </Button>
+          
         </div>
         
         {members?.documents && members.documents.length > 0 ? (

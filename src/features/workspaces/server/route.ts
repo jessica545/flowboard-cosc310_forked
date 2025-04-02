@@ -286,12 +286,24 @@ app.get(
       
       // Fetch tasks for this month using projects
       const thisMonthTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
-        ...(projectIds.length > 0 ? [Query.or(projectIds.map(id => Query.equal("projectId", id)))] : []),
+        Query.equal("workspaceId", workspaceId),
         Query.greaterThanEqual("$createdAt", thisMonthStart.toISOString()),
         Query.lessThanEqual("$createdAt", thisMonthEnd.toISOString()),
       ]);
       
-      console.log(`Found ${thisMonthTasks.total} tasks this month across ${projectIds.length} projects`);
+      console.log("Total tasks query:", {
+        workspaceId,
+        dateRange: {
+          start: thisMonthStart.toISOString(),
+          end: thisMonthEnd.toISOString()
+        }
+      });
+      
+      if (thisMonthTasks.documents.length > 0) {
+        console.log("Sample task from total tasks:", JSON.stringify(thisMonthTasks.documents[0], null, 2));
+      }
+      
+      console.log(`Found ${thisMonthTasks.total} total tasks in workspace`);
       
       // Get tasks assigned to the member
       const assignedTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [

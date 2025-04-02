@@ -38,11 +38,13 @@ app.get(
     if (!member) return c.json({ error: "Unauthorized" }, 401);
 
     const query = [Query.equal("workspaceId", workspaceId), Query.orderDesc("$createdAt")];
-    if (projectId) query.push(Query.equal("projectId", projectId));
-    if (status) query.push(Query.equal("status", status));
-    if (assigneeId) query.push(Query.equal("assigneeId", assigneeId));
-    if (dueDate) query.push(Query.equal("dueDate", dueDate));
-    if (search) query.push(Query.search("name", search));
+    if (projectId !== null && projectId !== undefined) query.push(Query.equal("projectId", projectId));
+    if (status !== null && status !== undefined) query.push(Query.equal("status", status));
+    if (assigneeId !== null && assigneeId !== undefined) query.push(Query.equal("assigneeId", assigneeId));
+    if (dueDate !== null && dueDate !== undefined) query.push(Query.equal("dueDate", dueDate));
+    if (search !== null && search !== undefined && search !== '') query.push(Query.search("name", search));
+
+    console.log('Tasks query:', query);
 
     const tasks = await databases.listDocuments<Task>(DATABASE_ID, TASKS_ID, query);
     const projectIds = tasks.documents.map((task) => task.projectId);
