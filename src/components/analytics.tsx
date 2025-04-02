@@ -11,6 +11,7 @@ type AnalyticsProps = {
     assignedTaskCount: number;
     completedTaskCount: number;
     overdueTaskCount: number;
+    incompleteTaskCount: number;
     [key: string]: any; // For any additional properties
   };
 };
@@ -53,6 +54,15 @@ export const Analytics = ({ data }: AnalyticsProps) => {
             <AnalyticsCard
               title="Overdue Tasks"
               value={data.overdueTaskCount || 0}
+            />
+            <DottedSeparator direction="vertical" />
+          </div>
+          
+          {/* Incomplete Tasks */}
+          <div className="flex items-center flex-1">
+            <AnalyticsCard
+              title="Incomplete Tasks"
+              value={data.incompleteTaskCount || 0}
             />
           </div>
         </div>

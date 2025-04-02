@@ -84,20 +84,16 @@ export const getProjectAnalytics = async ({
         // Get tasks assigned to the member (either as assignee or assignedTo)
         const thisMonthAssignedTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
             Query.equal("projectId", projectId),
-            Query.or([
-                Query.equal("assigneeId", member.$id),
-                Query.equal("assignedToId", member.$id)
-            ]),
+                Query.equal("assignedToId", member.$id),
             Query.greaterThanEqual("$createdAt", thisMonthStart.toISOString()),
             Query.lessThanEqual("$createdAt", thisMonthEnd.toISOString()),
         ]);
         
         const lastMonthAssignedTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
             Query.equal("projectId", projectId),
-            Query.or([
-                Query.equal("assigneeId", member.$id),
-                Query.equal("assignedToId", member.$id)
-            ]),
+  
+                Query.equal("assignedToId", member.$id),
+
             Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
             Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
         ]);
@@ -142,7 +138,34 @@ export const getProjectAnalytics = async ({
         
         const overdueTaskCount = thisMonthOverdueTasks.total;
         const overdueTaskDifference = overdueTaskCount - lastMonthOverdueTasks.total;
-        
+       // Get incomplete tasks for this month
+const thisMonthIncompleteTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
+    Query.equal("projectId", projectId),
+    Query.notEqual("status", TaskStatus.DONE),
+    Query.or([
+        Query.equal("assigneeId", member.$id),
+        Query.equal("assignedToId", member.$id)
+    ]),
+    Query.greaterThanEqual("$createdAt", thisMonthStart.toISOString()),
+    Query.lessThanEqual("$createdAt", thisMonthEnd.toISOString()),
+]);
+
+// Get incomplete tasks for last month
+const lastMonthIncompleteTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
+    Query.equal("projectId", projectId),
+    Query.notEqual("status", TaskStatus.DONE),
+    Query.or([
+        Query.equal("assigneeId", member.$id),
+        Query.equal("assignedToId", member.$id)
+    ]),
+    Query.greaterThanEqual("$createdAt", lastMonthStart.toISOString()),
+    Query.lessThanEqual("$createdAt", lastMonthEnd.toISOString()),
+]);
+
+// Calculate incomplete task counts and differences
+const incompleteTaskCount = thisMonthIncompleteTasks.total;
+const incompleteTaskDifference = incompleteTaskCount - lastMonthIncompleteTasks.total;
+
         return {
             taskCount,
             taskDifference,
@@ -152,6 +175,8 @@ export const getProjectAnalytics = async ({
             completedTaskDifference,
             overdueTaskCount,
             overdueTaskDifference,
+            incompleteTaskCount,
+            incompleteTaskDifference,
         };
     } catch (error) {
         return null;

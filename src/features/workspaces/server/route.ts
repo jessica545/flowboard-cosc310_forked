@@ -3,12 +3,25 @@ import {z} from "zod";
 import {zValidator} from "@hono/zod-validator";
 import {createWorkspaceSchema, updateWorkspaceSchema} from "@/features/workspaces/schemas";
 import {sessionMiddleware} from "@/lib/session-middleware";
-import {DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, WORKSPACES_ID} from "@/config";
+import {DATABASE_ID, IMAGES_BUCKET_ID, MEMBERS_ID, WORKSPACES_ID, PROJECTS_ID, TASKS_ID} from "@/config";
 import {ID, Query} from "node-appwrite";
 import {MemberRole} from "@/features/members/types";
 import {generateInviteCode} from "@/lib/utils";
 import { getMember } from "@/features/members/utils";
 import { Workspace } from "../types";
+import { TaskStatus } from "@/features/tasks/types";
+import { Project } from "@/features/projects/types";
+
+// Define Task type for workspace analytics
+interface Task {
+  name: string;
+  projectId: string;
+  workspaceId: string;
+  assignedToId?: string;
+  status: TaskStatus;
+  dueDate?: string;
+  position?: number;
+}
 
 const app = new Hono()
     .get("/", sessionMiddleware, async (c) => {
@@ -226,6 +239,125 @@ app.get(
         await databases.deleteDocument(DATABASE_ID, WORKSPACES_ID, workspaceId);
         return c.json({$id: workspaceId});
     }
+);
+
+// Add workspace analytics endpoint
+app.get(
+  "/:workspaceId/analytics",
+  sessionMiddleware,
+  async (c) => {
+    try {
+      const { workspaceId } = c.req.param();
+      console.log("Workspace analytics request for workspaceId:", workspaceId);
+      
+      if (!workspaceId) {
+        console.error("Workspace ID is missing");
+        throw new Error("Workspace ID is required");
+      }
+
+      const databases = c.get("databases");
+      const user = c.get("user");
+      const userId = user.$id;
+
+      // Verify member access
+      const member = await getMember({
+        databases,
+        workspaceId,
+        userId
+      });
+
+      if (!member) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      // Get all projects in the workspace
+      const projects = await databases.listDocuments<Project>(
+        DATABASE_ID,
+        PROJECTS_ID,
+        [
+          Query.equal("workspaceId", workspaceId),
+          Query.limit(100000)
+        ]
+      );
+
+      // Get total tasks in the workspace
+      const totalTasks = await databases.listDocuments(
+        DATABASE_ID,
+        TASKS_ID,
+        [
+          Query.equal("workspaceId", workspaceId),
+          Query.limit(100000)
+        ]
+      );
+
+      // Get tasks assigned to the user
+      const assignedTasks = await databases.listDocuments(
+        DATABASE_ID,
+        TASKS_ID,
+        [
+          Query.equal("workspaceId", workspaceId),
+          Query.equal("assignedToId", userId),
+          Query.limit(100000)
+        ]
+      );
+
+      // Get completed tasks assigned to the user
+      const completedTasks = await databases.listDocuments(
+        DATABASE_ID,
+        TASKS_ID,
+        [
+          Query.equal("workspaceId", workspaceId),
+          Query.equal("assignedToId", userId),
+          Query.equal("status", TaskStatus.DONE),
+          Query.limit(100000)
+        ]
+      );
+
+      // Get overdue tasks assigned to the user
+      const overdueTasks = await databases.listDocuments(
+        DATABASE_ID,
+        TASKS_ID,
+        [
+          Query.equal("workspaceId", workspaceId),
+          Query.equal("assignedToId", userId),
+          Query.lessThan("dueDate", new Date().toISOString()),
+          Query.notEqual("status", TaskStatus.DONE),
+          Query.limit(100000)
+        ]
+      );
+
+      // Get incomplete tasks assigned to the user
+      const incompleteTasks = await databases.listDocuments(
+        DATABASE_ID,
+        TASKS_ID,
+        [
+          Query.equal("workspaceId", workspaceId),
+          Query.equal("assignedToId", userId),
+          Query.notEqual("status", TaskStatus.DONE),
+          Query.limit(100000)
+        ]
+      );
+
+      // Create response with counts
+      const response = {
+        totalProjects: projects.documents.length,
+        totalTasks: totalTasks.documents.length,
+        assignedTasks: assignedTasks.documents.length,
+        completedTasks: completedTasks.documents.length,
+        overdueTasks: overdueTasks.documents.length,
+        incompleteTaskCount: incompleteTasks.documents.length,
+      };
+
+      console.log("Workspace analytics response:", response);
+
+      return c.json({
+        data: response,
+      });
+    } catch (error) {
+      console.error("Workspace analytics error:", error);
+      throw error;
+    }
+  }
 );
 
 export default app;

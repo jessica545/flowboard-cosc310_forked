@@ -308,12 +308,24 @@ app
           Query.limit(100000)
         ]
       );
+      // Get incomplete tasks
+      const incompleteTasks = await databases.listDocuments<Task>(
+        DATABASE_ID,
+        TASKS_ID,
+        [
+          Query.equal("projectId", projectId),
+          Query.equal("assignedToId", userId),
+          Query.equal("completed", false),
+          Query.limit(100000)
+        ]
+      );
 
       const response = {
         totalTasks: totalTasks.documents.length,
         assignedTasks: assignedTasks.documents.length,
         completedTasks: completedTasks.documents.length,
         overdueTasks: overdueTasks.documents.length,
+        incompleteTasks: incompleteTasks.documents.length,
       };
 
       return c.json({
