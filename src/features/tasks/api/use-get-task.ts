@@ -11,22 +11,33 @@ export const useGetTask = ({ taskId }: UseGetTaskProps) => {
     queryKey: ["task", taskId],
     queryFn: async () => {
       try {
+        console.log("Fetching task with ID:", taskId);
+        
+        if (!taskId) {
+          console.error("Task ID is undefined or empty");
+          throw new Error("Task ID is required");
+        }
+        
         // @ts-ignore
         const response = await client.api.tasks[":taskId"].$get({
           param: { taskId },
         });
 
         if (!response.ok) {
-          console.error("Task API response not OK:", await response.text());
-          throw new Error("Failed to fetch task");
+          const errorText = await response.text();
+          console.error("Task API response not OK:", errorText);
+          throw new Error(`Failed to fetch task: ${errorText}`);
         }
 
-        const { data } = await response.json();
-        return data;
+        const result = await response.json();
+        console.log("Task fetched successfully:", result);
+        return result.data;
       } catch (error) {
         console.error("Error fetching task:", error);
         throw error;
       }
     },
+    enabled: !!taskId,
+    staleTime: 1000 * 60, // 1 minute
   });
 };

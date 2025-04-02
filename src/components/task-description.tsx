@@ -1,10 +1,11 @@
 import { Task } from "@/features/tasks/types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pencil, PencilIcon, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { DottedSeparator } from "./ui/dotted-separator";
 import { useUpdateTask } from "@/features/tasks/api/use-update-task";
+import { toast } from "sonner";
 
 interface TaskDescriptionProps {
     task: Task;
@@ -14,14 +15,38 @@ export const TaskDescription = ({
     task,
 }: TaskDescriptionProps) => {
     const [ isEditing, setIsEditing ] = useState(false);
-    const [ value, setValue ] = useState(task.description);
+    const [ value, setValue ] = useState(task.description || "");
     const { mutate, isPending } = useUpdateTask();
+    
+    // Update value if task description changes
+    useEffect(() => {
+        setValue(task.description || "");
+    }, [task.description]);
 
     const handleSave = () => {
-        mutate({
-            json: { description: value },
-            param: { taskId: task.$id },
-        })
+        if (!task.$id) {
+            console.error("Task ID is missing");
+            toast.error("Cannot save description: Task ID is missing");
+            return;
+        }
+        
+        console.log("Saving task description:", { taskId: task.$id, description: value });
+        mutate(
+            {
+                json: { description: value },
+                param: { taskId: task.$id },
+            },
+            {
+                onSuccess: (data) => {
+                    console.log("Description updated successfully:", data);
+                    setIsEditing(false);
+                },
+                onError: (error) => {
+                    console.error("Failed to update description:", error);
+                    toast.error("Failed to save description. Please try again.");
+                }
+            }
+        );
     }
 
     return(

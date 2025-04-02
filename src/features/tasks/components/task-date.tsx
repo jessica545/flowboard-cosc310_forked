@@ -1,3 +1,5 @@
+"use client";
+
 import { differenceInDays, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import React from "react";

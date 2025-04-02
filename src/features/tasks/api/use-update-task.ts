@@ -16,27 +16,37 @@ export const useUpdateTask = () => {
 
   return useMutation<ResponseType, Error, { json: RequestType["json"], param: RequestType["param"] }>({
     mutationFn: async ({ json, param }) => {
-      // @ts-ignore
-      const response = await client.api.tasks[":taskId"]["$patch"]({ json, param });
-      
-      if (!response.ok) {
-        throw new Error("Failed to update task");
+      console.log("Updating task with:", { json, param });
+      try {
+        // @ts-ignore
+        const response = await client.api.tasks[":taskId"]["$patch"]({ json, param });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Failed to update task:", errorText);
+          throw new Error(`Failed to update task: ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log("Task update successful:", result);
+        return result;
+      } catch (error) {
+        console.error("Error in useUpdateTask:", error);
+        throw error;
       }
-      
-      return await response.json();
     },
     onSuccess: (data) => {
       toast.success("Task updated");
       
       // Handle task assignment notifications
-      if (data.assigneeId || data.assignedToId) {
+      if (data.data.assigneeId || data.data.assignedToId) {
         // Dispatch event for notification listener
         const event = new CustomEvent('taskAssigned', { 
           detail: { 
-            taskId: data.$id,
-            taskName: data.name,
-            assigneeId: data.assigneeId,
-            assignedToId: data.assignedToId
+            taskId: data.data.$id,
+            taskName: data.data.name,
+            assigneeId: data.data.assigneeId,
+            assignedToId: data.data.assignedToId
           } 
         });
         window.dispatchEvent(event);
@@ -44,11 +54,12 @@ export const useUpdateTask = () => {
       
       // Invalidate all relevant queries
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["task", data.$id] });
-      queryClient.invalidateQueries({ queryKey: ["project-analytics", data.projectId] });
+      queryClient.invalidateQueries({ queryKey: ["task", data.data.$id] });
+      queryClient.invalidateQueries({ queryKey: ["project-analytics", data.data.projectId] });
     },
-    onError: () => {
-      toast.error("Failed to update task");
+    onError: (error) => {
+      console.error("Error updating task:", error);
+      toast.error(`Failed to update task: ${error.message}`);
     },
   });
 };

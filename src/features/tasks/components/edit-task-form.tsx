@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { DottedSeparator } from "@/components/ui/dotted-separator";
 import { cn } from "@/lib/utils";
 import React from "react";
+import { toast } from "sonner";
 
 interface EditTaskFormProps {
   onCancel?: () => void;
@@ -53,6 +54,13 @@ export const EditTaskForm = ({
   const router = useRouter();
   const { mutate, isPending } = useUpdateTask();
 
+  // Log the initial values for debugging
+  React.useEffect(() => {
+    console.log("Edit Task Form - Initial Values:", initialValues);
+    console.log("Available Projects:", projectOptions);
+    console.log("Available Members:", memberOptions);
+  }, [initialValues, projectOptions, memberOptions]);
+
   const form = useForm<z.infer<typeof createTaskSchema>>({
     resolver: zodResolver(
       createTaskSchema.omit({ workspaceId: true, description: true })
@@ -64,13 +72,25 @@ export const EditTaskForm = ({
   });
 
   const onSubmit = (values: z.infer<typeof createTaskSchema>) => {
+    console.log("Submitting task edit:", values);
+    
+    // Make sure we include the workspaceId
+    const updateData = {
+      ...values,
+      workspaceId: initialValues.workspaceId,
+    };
+    
     mutate(
-      { json: values, param: { taskId: initialValues.$id } },
+      { json: updateData, param: { taskId: initialValues.$id } },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          console.log("Task updated successfully:", data);
           form.reset();
           onCancel?.();
         },
+        onError: (error) => {
+          console.error("Error updating task:", error);
+        }
       }
     );
   };

@@ -1,3 +1,5 @@
+"use client";
+
 import { Task, TaskStatus } from "@/features/tasks/types";
 import React, { useState, useCallback } from "react";
 import {

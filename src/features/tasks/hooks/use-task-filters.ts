@@ -1,3 +1,5 @@
+"use client";
+
 import {parseAsString, parseAsStringEnum, useQueryState, useQueryStates} from "nuqs";
 import {TaskStatus} from "../types";
 
