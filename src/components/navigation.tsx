@@ -54,10 +54,11 @@ export const Navigation = () => {
                     <li key={item.href}>
                         <Link href={fullHref} aria-current={isActive ? "page" : undefined}>
                             <div className={cn(
-                                "flex items-center gap-2.5 p-2.5 rounded-md font-medium hover:text-neutral-700",
-                                isActive && "bg-white shadow-sm hover:opacity-100 text-primary"
+                                "flex items-center gap-2.5 p-2.5 rounded-md font-medium text-primary hover:text-hover transition-colors",
+                                "hover:bg-secondary/50 transition-colors duration-200",
+                                isActive ? "bg-quaternary hover:bg-tertiary text-primary shadow-sm" : "text-neutral-400 hover:text-primary hover:bg-tertiary transition"
                             )}>
-                                <Icon className="size-5 text-neutral-500" />
+                                <Icon className="size-5 text-neutral-500 " />
                                 {item.label}
                             </div>
                         </Link>
