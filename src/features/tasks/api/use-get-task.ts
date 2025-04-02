@@ -10,17 +10,23 @@ export const useGetTask = ({ taskId }: UseGetTaskProps) => {
   return useQuery({
     queryKey: ["task", taskId],
     queryFn: async () => {
-      // @ts-ignore
-      const response = await client.api.tasks[":taskId"].$get({
-        param: { taskId },
-      });
+      try {
+        // @ts-ignore
+        const response = await client.api.tasks[":taskId"].$get({
+          param: { taskId },
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch task");
+        if (!response.ok) {
+          console.error("Task API response not OK:", await response.text());
+          throw new Error("Failed to fetch task");
+        }
+
+        const { data } = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Error fetching task:", error);
+        throw error;
       }
-
-      const { data } = await response.json();
-      return data;
     },
   });
 };
