@@ -21,6 +21,7 @@ A modern project management application built with Next.js, Appwrite, and Tailwi
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
 - [API Routes](#api-routes)
+- [Testing](#testing)
 - [Contributing](#contributing)
 
 ## Overview
@@ -35,6 +36,8 @@ Flowboard is a collaborative project management tool that allows teams to organi
 - **Tasks**: Create, assign, and track tasks with different statuses
 - **Members**: Manage workspace members with different roles
 - **Real-time Updates**: Stay in sync with your team's progress
+- **Chat**: Communicate with team members within workspaces through real-time messaging
+- **Theme Settings**: Customize your UI with light and dark mode preferences
 
 ## Project Structure
 
@@ -72,7 +75,9 @@ src/
 │   ├── workspaces/       # Workspaces
 │   ├── projects/         # Projects
 │   ├── tasks/            # Tasks
-│   └── members/          # Members
+│   ├── members/          # Members
+│   ├── chat/             # Chat functionality
+│   └── settings/         # User settings
 ├── lib/                  # Utility functions and libraries
 │   ├── appwrite.ts       # Appwrite client setup
 │   ├── session-middleware.ts # Session handling
@@ -123,6 +128,28 @@ src/
 - **Types**: Member roles and data models
 - **Utils**: Utility functions for member operations
 
+#### Chat (`src/features/chat/`)
+
+- **Components**: 
+  - Chat container with messaging interface
+  - Message bubbles with user attribution
+  - Message input with validation
+  - Conversation list for selecting chats
+  - Conversation creation dialog
+- **Server**: Chat and messaging API routes
+- **Types**: Message and conversation data models
+- **API**: Client-side API hooks for real-time messaging
+- **Hooks**: Custom hooks for managing chat state
+- **Tests**: Unit and component tests for chat functionality
+
+#### Settings (`src/features/settings/`)
+
+- **Components**: Theme selection and account settings
+- **Server**: User preferences API routes
+- **Types**: Settings data models
+- **API**: Client-side API hooks for user preferences
+- **Hooks**: Theme management functionality
+
 ### Components Breakdown
 
 #### UI Components (`src/components/ui/`)
@@ -152,6 +179,7 @@ Basic UI components built with Tailwind CSS and Radix UI:
 - **Date-Picker**: Date selection component
 - **Mobile-Sidebar**: Mobile-responsive sidebar
 - **Query-Provider**: React Query provider setup
+- **Theme-Switcher**: Toggle between light and dark themes
 
 ### API Routes
 
@@ -162,6 +190,8 @@ The application uses Hono.js for API routes:
 - **/api/projects**: Project management
 - **/api/tasks**: Task management
 - **/api/members**: Member management
+- **/api/chat**: Chat and messaging
+- **/api/settings**: User preferences
 
 ## Getting Started
 
@@ -195,7 +225,48 @@ NEXT_PUBLIC_APPWRITE_PROJECTS_ID=
 NEXT_PUBLIC_APPWRITE_MEMBERS_ID=
 NEXT_PUBLIC_APPWRITE_TASKS_ID=
 NEXT_PUBLIC_APPWRITE_IMAGES_BUCKET_ID=
+NEXT_PUBLIC_APPWRITE_CONVERSATIONS_ID=
+NEXT_PUBLIC_APPWRITE_MESSAGES_ID=
 ```
+
+## Testing
+
+The application includes testing:
+
+### Test Setup
+
+```
+__tests__/
+├── chat-container.test.tsx    # Tests for the chat container component
+├── message-input.test.tsx     # Tests for message input functionality
+├── message-list.test.tsx      # Tests for message list display
+├── message-bubble.test.tsx    # Tests for message bubbles
+└── conversation-list.test.tsx # Tests for conversation selection
+```
+
+### Running Tests
+
+```bash
+npm test
+```
+
+### Chat Feature Test Coverage
+
+The chat feature includes tests for:
+- Component rendering and layout
+- Form validation for message input
+- Conversation creation functionality
+- Message display with proper user attribution
+- Error state handling
+- Loading state visualization
+
+### Future Test Improvements
+
+- API integration tests for conversation creation
+- Message sending and receiving between users
+- Real-time update verification
+- Authorization checks for conversation access
+- Error handling in API calls
 
 ## Contributing
 
