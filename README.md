@@ -226,6 +226,33 @@ NEXT_PUBLIC_APPWRITE_CONVERSATIONS_ID=
 NEXT_PUBLIC_APPWRITE_MESSAGES_ID=
 ```
 
+## Chat Database Structure
+
+### Collections
+
+#### Conversations Collection
+- **Attributes**:
+  - `name` (string): Name of the conversation
+  - `workspaceId` (string): Links to workspace
+  - `memberIds` (string[]): Array of user IDs in the conversation
+  - `createdAt` (timestamp): When the conversation was created
+  - `updatedAt` (timestamp): When the conversation was last updated
+
+#### Messages Collection
+- **Attributes**:
+  - `conversationId` (string): Links to a conversation
+  - `content` (string): Message content
+  - `senderId` (string): User who sent the message
+  - `username` (string): Display name of sender
+  - `avatar` (string): Avatar URL of sender
+  - `createdAt` (timestamp): When the message was sent
+
+### Relationships
+- Messages are linked to conversations via `conversationId`
+- Conversations are linked to workspaces via `workspaceId`
+- Users are linked to conversations via `memberIds` array
+- Messages are linked to users via `senderId`
+
 ## Testing
 
 The application includes testing:

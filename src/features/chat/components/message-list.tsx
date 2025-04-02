@@ -28,10 +28,10 @@ export function MessageList({ messages = [], isLoading = false, error = null }: 
     return (
       <div role="main" className="flex items-center justify-center h-full" data-testid="message-list">
         <div className="text-center">
-          <p className="text-red-500 mb-2">{error}</p>
+          <p className="text-destructive mb-2">{error}</p>
           <button 
             onClick={() => window.location.reload()}
-            className="text-sm text-blue-500 hover:text-blue-600 hover:underline"
+            className="text-sm text-primary hover:text-muted-foreground hover:underline"
           >
             Try again
           </button>
@@ -43,7 +43,7 @@ export function MessageList({ messages = [], isLoading = false, error = null }: 
   if (messages.length === 0 && !isLoading) {
     return (
       <div role="main" className="flex items-center justify-center h-full" data-testid="message-list">
-        <div className="text-center text-neutral-500">
+        <div className="text-center text-muted-foreground">
           <p>No messages yet. Start a conversation!</p>
         </div>
       </div>
@@ -62,13 +62,13 @@ export function MessageList({ messages = [], isLoading = false, error = null }: 
         />
       ))}
       {isLoading && (
-        <div data-testid="message-loading" className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span>AI is typing...</span>
+        <div data-testid="message-loading" className="flex items-center gap-2 p-4 bg-secondary rounded-lg">
+          <Loader2 className="w-4 h-4 animate-spin text-primary" />
+          <span className="text-primary">Message Loading...</span>
           <div data-testid="typing-indicator" className="flex gap-1">
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-muted rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div className="w-2 h-2 bg-muted rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+            <div className="w-2 h-2 bg-muted rounded-full animate-bounce"></div>
           </div>
         </div>
       )}

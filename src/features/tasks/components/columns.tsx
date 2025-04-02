@@ -77,7 +77,7 @@ export const columns: ColumnDef<Task>[] = [
         <div className="flex items-center gap-x-2 text-sm font-medium">
           {assignee && (
             <MemberAvatar
-              className="size-6"
+              className="size-6 rounded-md"
               fallbackClassName="text-xs"
               name={assignee.name}
               image={assignee.imageUrl}
@@ -107,7 +107,7 @@ export const columns: ColumnDef<Task>[] = [
         <div className="flex items-center gap-x-2 text-sm font-medium">
           {assignedTo && (
             <MemberAvatar
-              className="size-6"
+              className="size-6 rounded-md"
               fallbackClassName="text-xs"
               name={assignedTo.name}
               image={assignedTo.imageUrl}

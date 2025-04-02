@@ -25,11 +25,11 @@ export function ConversationList({
   onCreateNew
 }: ConversationListProps) {
   return (
-    <div className="flex flex-col h-full border-r">
-      <div className="p-4 border-b">
+    <div className="flex flex-col h-full">
+      <div className="p-4 border-b border-border/50 dark:border-gray-400/20 flex-none">
         <Button 
           onClick={onCreateNew} 
-          className="w-full" 
+          className="w-full bg-primary/10 hover:bg-primary/20 text-primary dark:bg-white/60 dark:hover:bg-white/70 dark:text-gray-800" 
           variant="outline"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -38,42 +38,46 @@ export function ConversationList({
       </div>
       
       {error && (
-        <div className="p-4 text-sm text-red-500">
+        <div className="p-4 text-sm text-destructive bg-destructive/10 mx-2 mt-2 rounded-md flex-none">
           {error}
         </div>
       )}
       
-      {isLoading && conversations.length === 0 ? (
-        <div className="flex items-center justify-center flex-1 p-4">
-          <div className="text-sm text-muted-foreground">Loading conversations...</div>
-        </div>
-      ) : conversations.length === 0 ? (
-        <div className="flex items-center justify-center flex-1 p-4">
-          <div className="text-sm text-muted-foreground">No conversations yet</div>
-        </div>
-      ) : (
-        <ScrollArea className="flex-1">
-          <div className="p-2">
-            {conversations.map((conversation) => (
-              <button
-                key={conversation.id}
-                onClick={() => onSelect(conversation.id)}
-                className={cn(
-                  "w-full text-left p-3 rounded-md hover:bg-gray-100 transition-colors mb-1",
-                  activeConversationId === conversation.id && "bg-gray-100"
-                )}
-              >
-                <div className="font-medium">{conversation.name}</div>
-                {conversation.lastMessage && (
-                  <div className="text-sm text-muted-foreground truncate">
-                    {conversation.lastMessage.content}
-                  </div>
-                )}
-              </button>
-            ))}
+      <div className="flex-1 min-h-0">
+        {isLoading && conversations.length === 0 ? (
+          <div className="flex items-center justify-center h-full p-4">
+            <div className="text-sm text-muted-foreground dark:text-gray-600">Loading conversations...</div>
           </div>
-        </ScrollArea>
-      )}
+        ) : conversations.length === 0 ? (
+          <div className="flex items-center justify-center h-full p-4">
+            <div className="text-sm text-muted-foreground dark:text-gray-600">No conversations yet</div>
+          </div>
+        ) : (
+          <ScrollArea className="h-full">
+            <div className="p-2">
+              {conversations.map((conversation) => (
+                <button
+                  key={conversation.id}
+                  onClick={() => onSelect(conversation.id)}
+                  className={cn(
+                    "w-full text-left p-3 rounded-md transition-all duration-200 mb-1 hover:bg-primary/10 border-b dark:border-gray-400/30",
+                    activeConversationId === conversation.id 
+                      ? "bg-primary/20 text-primary dark:text-gray-800 shadow-sm" 
+                      : "text-muted-foreground dark:text-gray-600 hover:text-primary dark:hover:text-gray-800"
+                  )}
+                >
+                  <div className="font-medium">{conversation.name}</div>
+                  {conversation.lastMessage && (
+                    <div className="text-sm text-muted-foreground/75 dark:text-gray-500 truncate mt-0.5">
+                      {conversation.lastMessage.content}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+      </div>
     </div>
   );
 } 

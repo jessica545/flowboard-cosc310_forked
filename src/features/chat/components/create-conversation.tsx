@@ -120,27 +120,28 @@ export function CreateConversation({
         }
       }}
     >
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-secondary dark:bg-[#DFDFDF]">
         <DialogHeader>
-          <DialogTitle>Create New Conversation</DialogTitle>
+          <DialogTitle className="text-primary dark:text-gray-800 font-semibold">Create New Conversation</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Conversation Name</Label>
+              <Label htmlFor="name" className="text-primary dark:text-gray-800">Conversation Name</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={handleNameChange}
                 placeholder="Enter conversation name"
+                className="bg-tertiary dark:bg-white/50 border-1 text-primary dark:text-gray-800 placeholder:text-muted-foreground dark:placeholder:text-gray-500"
               />
             </div>
             
             <div className="grid gap-2">
-              <Label>Select Members</Label>
-              <div className="border rounded-md p-3 max-h-[200px] overflow-y-auto">
+              <Label className="text-primary dark:text-gray-800">Select Members</Label>
+              <div className="border rounded-md p-3 max-h-[200px] overflow-y-auto bg-tertiary dark:bg-white/50">
                 {safeAvailableMembers.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-muted-foreground dark:text-gray-600">
                     No members available
                   </div>
                 ) : (
@@ -150,10 +151,11 @@ export function CreateConversation({
                         id={`member-${member.id}`}
                         checked={selectedMemberIds.includes(member.id)}
                         onCheckedChange={() => toggleMember(member.id)}
+                        className="border-primary dark:border-gray-800"
                       />
                       <Label
                         htmlFor={`member-${member.id}`}
-                        className="text-sm font-normal cursor-pointer"
+                        className="text-sm font-normal cursor-pointer text-primary dark:text-gray-800"
                       >
                         {member.name}
                       </Label>
@@ -164,16 +166,25 @@ export function CreateConversation({
             </div>
             
             {error && (
-              <div className="text-sm text-red-500">
+              <div className="text-sm text-red-500 bg-red-50 dark:bg-red-100 p-2 rounded">
                 {error}
               </div>
             )}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onClose}
+              className="bg-tertiary dark:bg-white/50 text-primary dark:text-gray-800 hover:bg-primary/10 dark:hover:bg-white/60"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="bg-primary text-secondary hover:bg-primary/90 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+            >
               {isLoading ? 'Creating...' : 'Create'}
             </Button>
           </DialogFooter>
