@@ -65,7 +65,7 @@ app.get(
     );
 
     const memberDetails = await Promise.all(
-      members.documents.map(async (member) => {
+      (members?.documents || []).map(async (member) => {
         try {
           const user = await users.get(member.userId);
           return { ...member, name: user.name, email: user.email };
