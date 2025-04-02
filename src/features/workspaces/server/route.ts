@@ -257,98 +257,142 @@ app.get(
 
       const databases = c.get("databases");
       const user = c.get("user");
-      const userId = user.$id;
-
+      
       // Verify member access
       const member = await getMember({
         databases,
         workspaceId,
-        userId
+        userId: user.$id
       });
 
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
       }
 
+      const now = new Date();
+      const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const thisMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      
       // Get all projects in the workspace
-      const projects = await databases.listDocuments<Project>(
-        DATABASE_ID,
-        PROJECTS_ID,
-        [
-          Query.equal("workspaceId", workspaceId),
-          Query.limit(100000)
-        ]
-      );
-
-      // Get total tasks in the workspace
-      const totalTasks = await databases.listDocuments(
-        DATABASE_ID,
-        TASKS_ID,
-        [
-          Query.equal("workspaceId", workspaceId),
-          Query.limit(100000)
-        ]
-      );
-
-      // Get tasks assigned to the user
-      const assignedTasks = await databases.listDocuments(
-        DATABASE_ID,
-        TASKS_ID,
-        [
-          Query.equal("workspaceId", workspaceId),
-          Query.equal("assignedToId", userId),
-          Query.limit(100000)
-        ]
-      );
-
-      // Get completed tasks assigned to the user
-      const completedTasks = await databases.listDocuments(
-        DATABASE_ID,
-        TASKS_ID,
-        [
-          Query.equal("workspaceId", workspaceId),
-          Query.equal("assignedToId", userId),
-          Query.equal("status", TaskStatus.DONE),
-          Query.limit(100000)
-        ]
-      );
-
-      // Get overdue tasks assigned to the user
-      const overdueTasks = await databases.listDocuments(
-        DATABASE_ID,
-        TASKS_ID,
-        [
-          Query.equal("workspaceId", workspaceId),
-          Query.equal("assignedToId", userId),
-          Query.lessThan("dueDate", new Date().toISOString()),
-          Query.notEqual("status", TaskStatus.DONE),
-          Query.limit(100000)
-        ]
-      );
-
-      // Get incomplete tasks assigned to the user
-      const incompleteTasks = await databases.listDocuments(
-        DATABASE_ID,
-        TASKS_ID,
-        [
-          Query.equal("workspaceId", workspaceId),
-          Query.equal("assignedToId", userId),
-          Query.notEqual("status", TaskStatus.DONE),
-          Query.limit(100000)
-        ]
-      );
+      const projects = await databases.listDocuments(DATABASE_ID, PROJECTS_ID, [
+        Query.equal("workspaceId", workspaceId),
+        Query.limit(100000)
+      ]);
+      
+      console.log(`Found ${projects.total} projects in workspace ${workspaceId}`);
+      
+      const projectIds = projects.documents.map(p => p.$id);
+      console.log("Project IDs:", projectIds);
+      
+      // Fetch tasks for this month using projects
+      const thisMonthTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
+        ...(projectIds.length > 0 ? [Query.or(projectIds.map(id => Query.equal("projectId", id)))] : []),
+        Query.greaterThanEqual("$createdAt", thisMonthStart.toISOString()),
+        Query.lessThanEqual("$createdAt", thisMonthEnd.toISOString()),
+      ]);
+      
+      console.log(`Found ${thisMonthTasks.total} tasks this month across ${projectIds.length} projects`);
+      
+      // Get tasks assigned to the member
+      const assignedTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
+        ...(projectIds.length > 0 ? [Query.or(projectIds.map(id => Query.equal("projectId", id)))] : []),
+        Query.or([
+          Query.equal("assigneeId", member.$id),
+          Query.equal("assignedToId", member.$id)
+        ]),
+        Query.greaterThanEqual("$createdAt", thisMonthStart.toISOString()),
+        Query.lessThanEqual("$createdAt", thisMonthEnd.toISOString()),
+      ]);
+      
+      console.log(`Found ${assignedTasks.total} tasks assigned to member this month`);
+      
+      // Fetch completed tasks
+      console.log("Querying completed tasks with status:", TaskStatus.DONE);
+      
+      const completedTasksQuery = [
+        ...(projectIds.length > 0 ? [Query.or(projectIds.map(id => Query.equal("projectId", id)))] : []),
+        Query.or([
+          Query.equal("assigneeId", member.$id),
+          Query.equal("assignedToId", member.$id)
+        ]),
+        Query.equal("status", TaskStatus.DONE),
+        Query.greaterThanEqual("$createdAt", thisMonthStart.toISOString()),
+        Query.lessThanEqual("$createdAt", thisMonthEnd.toISOString()),
+      ];
+      
+      console.log("Completed tasks query:", JSON.stringify(completedTasksQuery, null, 2));
+      
+      const completedTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, completedTasksQuery);
+      
+      console.log("Completed tasks query details:", {
+        memberId: member.$id,
+        projectIds,
+        status: TaskStatus.DONE,
+        dateRange: {
+          start: thisMonthStart.toISOString(),
+          end: thisMonthEnd.toISOString()
+        }
+      });
+      
+      if (completedTasks.documents.length > 0) {
+        console.log("Sample completed task:", JSON.stringify(completedTasks.documents[0], null, 2));
+      } else {
+        // If no completed tasks found, let's check what tasks exist for this user
+        const allUserTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
+          ...(projectIds.length > 0 ? [Query.or(projectIds.map(id => Query.equal("projectId", id)))] : []),
+          Query.or([
+            Query.equal("assigneeId", member.$id),
+            Query.equal("assignedToId", member.$id)
+          ])
+        ]);
+        console.log("All user tasks:", {
+          total: allUserTasks.total,
+          sampleTask: allUserTasks.documents[0] ? JSON.stringify(allUserTasks.documents[0], null, 2) : null
+        });
+      }
+      
+      console.log(`Found ${completedTasks.total} completed tasks this month`);
+      
+      // Fetch overdue tasks
+      const overdueTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
+        ...(projectIds.length > 0 ? [Query.or(projectIds.map(id => Query.equal("projectId", id)))] : []),
+        Query.or([
+          Query.equal("assigneeId", member.$id),
+          Query.equal("assignedToId", member.$id)
+        ]),
+        Query.notEqual("status", TaskStatus.DONE),
+        Query.lessThan("dueDate", now.toISOString()),
+        Query.greaterThanEqual("$createdAt", thisMonthStart.toISOString()),
+        Query.lessThanEqual("$createdAt", thisMonthEnd.toISOString()),
+      ]);
+      
+      console.log(`Found ${overdueTasks.total} overdue tasks this month`);
+      
+      // Get incomplete tasks
+      const incompleteTasks = await databases.listDocuments(DATABASE_ID, TASKS_ID, [
+        ...(projectIds.length > 0 ? [Query.or(projectIds.map(id => Query.equal("projectId", id)))] : []),
+        Query.or([
+          Query.equal("assigneeId", member.$id),
+          Query.equal("assignedToId", member.$id)
+        ]),
+        Query.notEqual("status", TaskStatus.DONE),
+        Query.greaterThanEqual("$createdAt", thisMonthStart.toISOString()),
+        Query.lessThanEqual("$createdAt", thisMonthEnd.toISOString()),
+      ]);
+      
+      console.log(`Found ${incompleteTasks.total} incomplete tasks this month`);
 
       // Create response with counts
       const response = {
-        totalProjects: projects.documents.length,
-        totalTasks: totalTasks.documents.length,
-        assignedTasks: assignedTasks.documents.length,
-        completedTasks: completedTasks.documents.length,
-        overdueTasks: overdueTasks.documents.length,
-        incompleteTaskCount: incompleteTasks.documents.length,
+        totalProjects: projects.total,
+        totalTasks: thisMonthTasks.total,
+        assignedTasks: assignedTasks.total,
+        completedTasks: completedTasks.total,
+        overdueTasks: overdueTasks.total,
+        incompleteTaskCount: incompleteTasks.total,
       };
 
-      console.log("Workspace analytics response:", response);
+      console.log("Final analytics response:", response);
 
       return c.json({
         data: response,

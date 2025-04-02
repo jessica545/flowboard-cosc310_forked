@@ -15,7 +15,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 
-export const WorkspaceIdClient = () => {
+
+export const WorkspaceIdClient = async () => {
   const workspaceId = useWorkspaceId();
   const { data: workspaces, isLoading: isLoadingWorkspaces } = useGetWorkspaces();
   const { data: analytics, isLoading: isLoadingAnalytics } = useGetWorkspaceAnalytics(workspaceId);
@@ -54,7 +55,7 @@ export const WorkspaceIdClient = () => {
           }} />
         </div>
       )}
-      
+
       {/* Tasks Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
@@ -158,14 +159,7 @@ export const WorkspaceIdClient = () => {
           <div className="text-center py-4 text-muted-foreground">No members found</div>
         )}
       </div>
-      
-      {/* Additional workspace content can go here */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-          <h3 className="font-medium mb-2">Projects</h3>
-          <p className="text-2xl font-bold">{analytics?.data.totalProjects || 0}</p>
-        </div>
-      </div>
+
     </div>
   );
 }; 

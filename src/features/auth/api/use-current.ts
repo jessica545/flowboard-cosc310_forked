@@ -1,6 +1,6 @@
 import{ useQuery } from "@tanstack/react-query";
 
-import { client } from "@/lib/rpc"; // Assuming it's exported with the type above
+import { client } from "@/lib/rpc"; 
 
 export const useCurrent = () => {
     const query =useQuery({

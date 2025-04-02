@@ -20,11 +20,19 @@ export const useGetWorkspaceAnalytics = (workspaceId: string) => {
       });
 
       if (!response.ok) {
+        console.error("Failed to fetch workspace analytics:", response.status);
         throw new Error("Failed to fetch workspace analytics");
       }
 
       const responseData = await response.json();
-      console.log("Raw workspace analytics response:", responseData);
+      console.log("Raw workspace analytics response:", JSON.stringify(responseData, null, 2));
+      console.log("Response data structure:", {
+        totalTasks: responseData.data?.totalTasks,
+        assignedTasks: responseData.data?.assignedTasks,
+        completedTasks: responseData.data?.completedTasks,
+        overdueTasks: responseData.data?.overdueTasks,
+        incompleteTaskCount: responseData.data?.incompleteTaskCount
+      });
       return responseData;
     },
     // Ensure data is always considered stale
