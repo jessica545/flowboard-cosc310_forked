@@ -19,9 +19,10 @@ import {
 
 interface DataFiltersProps {
     hideProjectFilter?: boolean;
+    forcedProjectId?: string;
 }
 
-export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
+export const DataFilters = ({ hideProjectFilter, forcedProjectId }: DataFiltersProps) => {
     const workspaceId = useWorkspaceId();
     const { data: projects, isLoading: isLoadingProjects } = useGetProjects({ workspaceId });
     const { data: members, isLoading: isLoadingMembers } = useGetMembers({ workspaceId });
@@ -39,6 +40,9 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
     }));
 
     const [{ status, assigneeId, projectId, dueDate }, setFilters] = useTaskFilters();
+
+    // Use the forcedProjectId if provided, otherwise use the one from filters
+    const effectiveProjectId = forcedProjectId || projectId;
 
     const onStatusChange = (value: string) => {
         setFilters({ status: value === "all" ? null : (value as TaskStatus) });
@@ -92,8 +96,9 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
 
                 {!hideProjectFilter && (
                     <Select
-                        value={projectId || "all"}
+                        value={effectiveProjectId || "all"}
                         onValueChange={onProjectChange}
+                        disabled={!!forcedProjectId}
                     >
                         <SelectTrigger className="h-8 w-[150px]">
                             <SelectValue placeholder="All projects" />

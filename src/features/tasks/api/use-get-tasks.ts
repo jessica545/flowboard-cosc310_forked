@@ -30,23 +30,40 @@ export const useGetTasks = ({
             search
         ],
         queryFn: async () => {
-            const response = await client.api.tasks.$get({
-                query: {
+            try {
+                console.log("Fetching tasks with params:", {
                     workspaceId,
                     projectId: projectId ?? undefined,
                     status: status ?? undefined,
                     assigneeId: assigneeId ?? undefined,
                     search: search ?? undefined,
                     dueDate: dueDate ?? undefined,
-                },
-            });
+                });
+                
+                const response = await client.api.tasks.$get({
+                    query: {
+                        workspaceId,
+                        projectId: projectId ?? undefined,
+                        status: status ?? undefined,
+                        assigneeId: assigneeId ?? undefined,
+                        search: search ?? undefined,
+                        dueDate: dueDate ?? undefined,
+                    },
+                });
 
-            if (!response.ok) {
-                throw new Error("Failed to fetch tasks");
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Failed to fetch tasks:", errorText);
+                    throw new Error("Failed to fetch tasks");
+                }
+
+                const { data } = await response.json();
+                console.log("Tasks fetched successfully:", data);
+                return data;
+            } catch (error) {
+                console.error("Error in useGetTasks:", error);
+                throw error;
             }
-
-            const { data } = await response.json();
-            return data;
         },
         refetchOnWindowFocus: true,
         refetchOnMount: true,

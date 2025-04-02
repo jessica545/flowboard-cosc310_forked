@@ -16,25 +16,42 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/data-table";
 import { DataKanban } from "./data-kanban";
 import { Task } from "../types";
+import { useProjectId } from "@/features/projects/hooks/use-project-id";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 interface TaskViewSwitcherProps {
     hideProjectFilter?: boolean;
+    forceProjectId?: string;
 }
 
-export const TaskViewSwitcher = ({ hideProjectFilter }: TaskViewSwitcherProps) => {
+export const TaskViewSwitcher = ({ hideProjectFilter, forceProjectId }: TaskViewSwitcherProps) => {
     const [view, setView] = useQueryState("task-view", {
         defaultValue: "table",
     });
 
-    const [{ status, assigneeId, projectId, dueDate, search }] = useTaskFilters();
+    const [{ status, assigneeId, projectId, dueDate, search }, setFilters] = useTaskFilters();
     const workspaceId = useWorkspaceId();
     const { open } = useCreateTaskModal();
+    
+    // If we're in a project page, force use that project ID
+    const currentProjectId = useProjectId();
+    const activeProjectId = forceProjectId || (hideProjectFilter ? currentProjectId : projectId);
+    
+    // When in a project page, set the projectId filter automatically
+    useEffect(() => {
+        if (forceProjectId && forceProjectId !== projectId) {
+            console.log("Setting projectId filter to:", forceProjectId);
+            setFilters({ projectId: forceProjectId });
+        } else if (hideProjectFilter && currentProjectId && currentProjectId !== projectId) {
+            console.log("Setting projectId filter to currentProjectId:", currentProjectId);
+            setFilters({ projectId: currentProjectId });
+        }
+    }, [hideProjectFilter, currentProjectId, projectId, forceProjectId, setFilters]);
 
     const { data: tasks, isLoading: isLoadingTasks } = useGetTasks({
         workspaceId,
-        projectId,
+        projectId: activeProjectId,
         assigneeId,
         status,
         dueDate,
@@ -59,10 +76,14 @@ export const TaskViewSwitcher = ({ hideProjectFilter }: TaskViewSwitcherProps) =
                 </div>
 
                 <div className="flex flex-col gap-y-4">
-                    <DataFilters hideProjectFilter={hideProjectFilter} />
+                    <DataFilters hideProjectFilter={hideProjectFilter} forcedProjectId={activeProjectId} />
                     {isLoadingTasks ? (
                         <div className="w-full flex items-center justify-center p-8">
                             <Loader className="size-6 animate-spin text-muted-foreground" />
+                        </div>
+                    ) : tasks?.documents?.length === 0 ? (
+                        <div className="w-full flex items-center justify-center p-8 text-muted-foreground">
+                            No tasks found. Create one to get started!
                         </div>
                     ) : (
                         <>

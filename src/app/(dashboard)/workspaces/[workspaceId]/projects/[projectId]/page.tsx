@@ -58,7 +58,7 @@ const ProjectIdPage = async ({
             {analyticsData && <Analytics data={analyticsData} />}
 
             {/* Task View Switcher */}
-            <TaskViewSwitcher hideProjectFilter/>
+            <TaskViewSwitcher hideProjectFilter forceProjectId={params.projectId} />
         </div>
     );
 };

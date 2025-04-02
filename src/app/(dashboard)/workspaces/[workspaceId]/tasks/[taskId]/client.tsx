@@ -15,13 +15,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEditTaskModal } from "@/features/tasks/hooks/use-edit-task-modal";
 import { DottedSeparator } from "@/components/ui/dotted-separator";
 import { TaskDescription } from "@/components/task-description";
+import { useEffect } from "react";
 
 export const TaskIdClient = () => {
     const taskId = useTaskId();
-    const { data, isLoading } = useGetTask({ taskId });
+    const { data, isLoading, error } = useGetTask({ taskId });
     const { open: openEditModal } = useEditTaskModal();
 
+    useEffect(() => {
+        if (taskId) {
+            console.log("Current task ID:", taskId);
+        }
+        if (error) {
+            console.error("Error loading task:", error);
+        }
+        if (data) {
+            console.log("Task data loaded:", data);
+        }
+    }, [taskId, data, error]);
+
     if (isLoading) return <PageLoader isLoaded />;
+    if (error) return <PageError message={`Error loading task: ${error.message}`} />;
     if (!data) return <PageError message="Task not found" />;
 
     return (
@@ -30,13 +44,13 @@ export const TaskIdClient = () => {
                 <div className="flex items-center gap-2">
                     <ProjectAvatar
                         className="size-8"
-                        name={data.project?.name}
+                        name={data.project?.name || "Unknown Project"}
                         image={data.project?.ImageUrl}
                     />
                     <div className="flex items-center gap-2 text-muted-foreground">
-                        <span>{data.project?.name}</span>
+                        <span>{data.project?.name || "Unknown Project"}</span>
                         <span>›</span>
-                        <span className="font-medium text-foreground">{data.name}</span>
+                        <span className="font-medium text-foreground">{data.name || "Untitled Task"}</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -48,7 +62,7 @@ export const TaskIdClient = () => {
                         <PencilIcon className="size-4 mr-2" />
                         Edit
                     </Button>
-                    <TaskActions id={data.$id} projectId={data.projectId}>
+                    <TaskActions id={data.$id} projectId={data.projectId || ""}>
                         <Button variant="outline" size="sm">
                             <MoreVertical className="size-4" />
                         </Button>
