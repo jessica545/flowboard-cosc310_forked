@@ -2,9 +2,10 @@
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { SettingsIcon, UsersIcon } from "lucide-react";
+import { SettingsIcon, UsersIcon, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { GoCheckCircle, GoCheckCircleFill, GoHome, GoHomeFill } from "react-icons/go";
+import React from "react";
 
 const routes = [
     {
@@ -18,6 +19,12 @@ const routes = [
         href: "/tasks",
         icon: GoCheckCircle,
         activeIcon: GoCheckCircleFill,
+    },
+    {
+        label: "Chat",
+        href: "/chat",
+        icon: MessageSquare,
+        activeIcon: MessageSquare,
     },
     {
         label: "Settings",

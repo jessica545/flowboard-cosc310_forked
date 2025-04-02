@@ -8,7 +8,7 @@ import { WorkspaceSwitcher } from "@/components/workspace-switcher";
 
 export const Sidebar = () => {
     return (
-        <aside className="h-full bg-secondary p-4 w-full">
+        <aside className="h-full min-h-screen bg-secondary p-4 w-64 flex-shrink-0 flex flex-col">
             {/* Logo */}
             <div className="relative w-[232px] h-[56px]">
                 <Link href="/" aria-label="Go to Home">
@@ -22,7 +22,9 @@ export const Sidebar = () => {
             <DottedSeparator className="my-4" />
             <Navigation />
             <DottedSeparator className="my-4" />
-            <Projects />
+            <div className="flex-1 overflow-y-auto">
+                <Projects />
+            </div>
         </aside>
     );
 };

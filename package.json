@@ -9,7 +9,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "npm test": "npx jest __tests__",
     "dev:https": "next dev --experimental-https --experimental-https-key ./certificates/localhost-key.pem --experimental-https-cert ./certificates/localhost.pem"
   },
   "dependencies": {
@@ -33,6 +32,7 @@
     "@tanstack/react-table": "^8.20.5",
     "@types/nodemailer": "^6.4.17",
     "@types/uuid": "^10.0.0",
+    "appwrite": "^17.0.1",
     "axios": "^1.8.2",
     "axios-cookiejar-support": "^5.0.5",
     "class-variance-authority": "^0.7.1",
@@ -88,7 +88,7 @@
     "jsdom": "^26.0.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
-    "ts-jest": "^29.2.6",
+    "ts-jest": "^29.3.0",
     "ts-node": "^10.9.2",
     "typescript": "5.8.2",
     "typescript-eslint": "^8.24.1",

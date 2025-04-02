@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "@/features/settings/components/theme-wrapper";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { Moon, Sun } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function ThemeSwitcher() {
@@ -24,10 +24,10 @@ export function ThemeSwitcher() {
                 }}
             />
             <div className="flex items-center justify-center w-6 h-6">
-                <SunIcon className={`w-4 h-4 ${theme === "light" ? "text-yellow-500" : "text-gray-400"}`} />
+                <Sun className={`w-4 h-4 ${theme === "light" ? "text-yellow-500" : "text-gray-400"}`} />
             </div>
             <div className="flex items-center justify-center w-6 h-6">
-                <MoonIcon className={`w-4 h-4 ${theme === "dark" ? "text-blue-400" : "text-gray-700"}`} />
+                <Moon className={`w-4 h-4 ${theme === "dark" ? "text-blue-400" : "text-gray-700"}`} />
             </div>
         </button>
     );

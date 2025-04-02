@@ -24,7 +24,7 @@ export const useGetWorkspaces = () => {
     return useQuery({
         queryKey: ["workspaces"],
         queryFn: async () => {
-            // @ts-ignore
+            // @ts-expect-error client type is actually known
             const response = await client.api.workspaces["$get"]();
             if (!response.ok) {
                 throw new Error("Failed to fetch workspaces");

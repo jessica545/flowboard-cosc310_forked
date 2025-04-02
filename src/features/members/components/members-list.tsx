@@ -83,56 +83,62 @@ export const MembersList = () => {
         <DottedSeparator />
       </div>
       <CardContent className="p-7">
-        {data?.documents.map((member: Member, index: number) => (
-          <Fragment key={member.$id}>
-            <div className="flex items-center gap-2">
-              <MemberAvatar
-                className="size-10"
-                fallbackClassName="text-lg"
-                name={member.name}
-              />
-              <div className="flex flex-col">
-                <p className="text-sm font-medium">{member.name}</p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span>{member.email}</span>
-                  <span>•</span>
-                  <span className="uppercase">{member.role}</span>
+        {!data?.documents || data.documents.length === 0 ? (
+          <div className="text-center py-4 text-muted-foreground">
+            No members found
+          </div>
+        ) : (
+          data.documents.map((member: Member, index: number) => (
+            <Fragment key={member.$id}>
+              <div className="flex items-center gap-2">
+                <MemberAvatar
+                  className="size-10"
+                  fallbackClassName="text-lg"
+                  name={member.name}
+                />
+                <div className="flex flex-col">
+                  <p className="text-sm font-medium">{member.name}</p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>{member.email}</span>
+                    <span>•</span>
+                    <span className="uppercase">{member.role}</span>
+                  </div>
                 </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="ml-auto" variant="secondary" size="icon">
+                      <MoreVerticalIcon className="size-4 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="bottom" align="end">
+                    <DropdownMenuItem
+                      className="font-medium"
+                      onClick={() => handleUpdateMember(member.$id, MemberRole.ADMIN)}
+                      disabled={isUpdatingMember}
+                    >
+                      Set as Administrator
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="font-medium"
+                      onClick={() => handleUpdateMember(member.$id, MemberRole.MEMBER)}
+                      disabled={isUpdatingMember}
+                    >
+                      Set as Member
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="font-medium text-amber-700"
+                      onClick={() => handleDeleteMember(member.$id)}
+                      disabled={isDeletingMember}
+                    >
+                      Remove {member.name}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="ml-auto" variant="secondary" size="icon">
-                    <MoreVerticalIcon className="size-4 text-muted-foreground" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="bottom" align="end">
-                  <DropdownMenuItem
-                    className="font-medium"
-                    onClick={() => handleUpdateMember(member.$id, MemberRole.ADMIN)}
-                    disabled={isUpdatingMember}
-                  >
-                    Set as Administrator
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="font-medium"
-                    onClick={() => handleUpdateMember(member.$id, MemberRole.MEMBER)}
-                    disabled={isUpdatingMember}
-                  >
-                    Set as Member
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="font-medium text-amber-700"
-                    onClick={() => handleDeleteMember(member.$id)}
-                    disabled={isDeletingMember}
-                  >
-                    Remove {member.name}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            {index < data.documents.length - 1 && <Separator className="my-2.5" />}
-          </Fragment>
-        ))}
+              {index < data.documents.length - 1 && <Separator className="my-2.5" />}
+            </Fragment>
+          ))
+        )}
       </CardContent>
     </Card>
   );

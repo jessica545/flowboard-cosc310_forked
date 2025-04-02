@@ -1,6 +1,6 @@
 # Flowboard
 
-A modern task management application built with Next.js, TypeScript, and Appwrite.
+A modern project management application built with Next.js, Appwrite, and Tailwind CSS.
 
 ## Team
 
@@ -8,6 +8,10 @@ A modern task management application built with Next.js, TypeScript, and Appwrit
 - **Shahzeb Iqbal** [Team Lead]
 - **Jessica**
 - **Mark**
+
+### DevOps and Testings
+- **Q**
+- **Germain**
 
 ## Table of Contents
 
@@ -33,40 +37,6 @@ Flowboard is a collaborative project management tool that allows teams to organi
 - **Real-time Updates**: Stay in sync with your team's progress
 
 ## Project Structure
-
-```
-flowboard/
-├── src/
-│   ├── app/                 # Next.js app router pages and layouts
-│   ├── components/          # Shared UI components
-│   ├── features/           # Feature modules
-│   │   ├── auth/          # Authentication functionality
-│   │   ├── members/       # Member management
-│   │   ├── projects/      # Project management
-│   │   ├── tasks/         # Task management
-│   │   └── workspaces/    # Workspace management
-│   ├── hooks/             # Custom React hooks
-│   └── lib/               # Utility functions and shared code
-├── public/                # Static assets
-├── .github/              # GitHub Actions workflows
-├── certificates/         # SSL certificates
-├── .next/               # Next.js build output
-├── node_modules/        # Dependencies
-└── config files         # Various configuration files
-```
-
-### Feature Module Structure
-
-Each feature module follows this pattern:
-```
-features/<feature>/
-├── api/          # API hooks for data fetching
-├── components/   # Feature-specific UI components
-├── hooks/        # Custom React hooks
-├── server/       # Server-side API routes
-├── schemas.ts    # Data validation schemas
-└── types.ts      # TypeScript type definitions
-```
 
 ### Root Structure
 

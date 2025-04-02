@@ -28,15 +28,15 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
 
     const isLoading = isLoadingProjects || isLoadingMembers;
 
-    const projectOptions = projects?.documents.map((project) => ({
+    const projectOptions = projects?.documents?.map((project) => ({
         value: project.$id,
         label: project.name,
-    }));
+    })) || [];
 
-    const memberOptions = members?.documents.map((member) => ({
+    const memberOptions = members?.documents?.map((member) => ({
         value: member.$id,
         label: member.name,
-    }));
+    })) || [];
 
     const [{ status, assigneeId, projectId, dueDate }, setFilters] = useTaskFilters();
 
@@ -82,7 +82,7 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All assignees</SelectItem>
-                        {memberOptions?.map((option) => (
+                        {memberOptions.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
                                 {option.label}
                             </SelectItem>
@@ -100,7 +100,7 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All projects</SelectItem>
-                            {projectOptions?.map((option) => (
+                            {projectOptions.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                     {option.label}
                                 </SelectItem>

@@ -15,17 +15,24 @@ const WorkspaceIdSettingsPage = async ({ params }: WorkspaceIdSettingsPageProps)
     const user = await getCurrent();
     if (!user) redirect("/sign-in");
 
-    const { data: initialValues, isLoading } = await getWorkspace({ workspaceId: params.workspaceId });
-
-    if(isLoading) return <PageLoader isLoaded/>
+    try {
+        const workspace = await getWorkspace({ workspaceId: params.workspaceId });
         
-    if (!initialValues) return <PageError message="Project not found"/>
-
-    return (
-        <div className="w-full lg:max-w-xl"> 
-            <EditWorkspaceForm initialValues={initialValues} /> 
-        </div>
-    );  
+        if (!workspace) {
+            return <PageError message="Workspace not found" />;
+        }
+        
+        return (
+            <div className="w-full lg:max-w-xl"> 
+                <EditWorkspaceForm initialValues={workspace} /> 
+            </div>
+        );
+    } catch (error) {
+        if ((error as Error).message === "Unauthorized") {
+            redirect("/");
+        }
+        return <PageError message="Error loading workspace settings" />;
+    }
 };
 
 export default WorkspaceIdSettingsPage;
