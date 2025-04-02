@@ -23,27 +23,15 @@ export function MessageBubble({ message, isCurrentUser }: MessageBubbleProps) {
       data-testid={`message-${message.id}`}
     >
       <Avatar 
-        className={cn(
-          "w-8 h-8 border rounded-lg",
-          isCurrentUser 
-            ? "bg-blue-50 border-blue-100" 
-            : "bg-neutral-50 border-neutral-100"
-        )}
+        className="w-8 h-8 border"
         data-testid="message-avatar"
       >
-        {message.avatar && (
-          <AvatarImage 
-            src={message.avatar} 
-            alt={userName}
-            className="object-cover rounded-lg"
-          />
-        )}
         <AvatarFallback 
           className={cn(
-            "text-sm font-medium rounded-lg",
+            "text-sm font-medium",
             isCurrentUser 
-              ? "text-blue-700 bg-blue-50" 
-              : "text-neutral-600 bg-neutral-50"
+              ? "bg-blue-500 text-white" 
+              : "bg-gray-500 text-white"
           )}
         >
           {userInitial}
