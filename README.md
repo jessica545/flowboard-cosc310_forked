@@ -41,6 +41,7 @@ Flowboard is a collaborative project management tool that allows teams to organi
 
 ```
 flowboard/
+├── __tests__/            # Tests 
 ├── src/                  # Source code
 ├── public/               # Static assets
 ├── certificates/         # SSL certificates for development
