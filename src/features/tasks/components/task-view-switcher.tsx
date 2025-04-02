@@ -59,11 +59,17 @@ export const TaskViewSwitcher = ({ hideProjectFilter, forceProjectId }: TaskView
         <Tabs defaultValue={view} onValueChange={setView} className="flex-1 w-full border rounded-lg">
             <div className="h-full flex flex-col overflow-auto p-4">
                 <div className="flex flex-col gap-y-2 lg:flex-row justify-between items-center">
-                    <TabsList className="w-full lg:w-auto">
-                        <TabsTrigger className="h-8 w-full lg:w-auto" value="table">
+                    <TabsList className="bg-transparent dark:bg-white/60 p-1 gap-1">
+                        <TabsTrigger
+                            value="table"
+                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-white dark:text-gray-800 dark:data-[state=inactive]:bg-white/50"
+                        >
                             Table
                         </TabsTrigger>
-                        <TabsTrigger className="h-8 w-full lg:w-auto" value="kanban">
+                        <TabsTrigger
+                            value="kanban"
+                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-white dark:text-gray-800 dark:data-[state=inactive]:bg-white/50"
+                        >
                             Kanban
                         </TabsTrigger>
                     </TabsList>

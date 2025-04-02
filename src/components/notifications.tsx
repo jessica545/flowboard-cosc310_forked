@@ -65,17 +65,17 @@ export const Notifications = () => {
         variant="ghost" 
         size="icon" 
         onClick={testNotification} 
-        className="mr-2"
+        className="mr-2 bg-secondary hover:bg-tertiary"
         title="Add test notification"
       >
         <Bug className="h-5 w-5" />
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="relative">
+          <Button variant="ghost" size="icon" className="relative bg-secondary hover:bg-tertiary">
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
-              <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive text-[10px] flex items-center justify-center text-white">
+              <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] flex items-center justify-center text-white font-medium">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </div>
             )}

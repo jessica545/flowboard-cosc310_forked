@@ -26,7 +26,7 @@ describe('ChatContainer', () => {
     expect(sendButton).toBeDisabled();
     expect(sendButton).toContainElement(screen.getByTestId('loader'));
     expect(screen.getByTestId('message-loading')).toBeInTheDocument();
-    expect(screen.getByText('AI is typing...')).toBeInTheDocument();
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
     expect(screen.getByTestId('typing-indicator')).toBeInTheDocument();
 
     // Wait for the simulated response

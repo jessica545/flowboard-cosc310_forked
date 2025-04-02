@@ -40,16 +40,16 @@ export const UserButton = () => {
         <div className="p-2">
             <DropdownMenu modal={false}>
                 <DropdownMenuTrigger className="outline-none relative">
-                    <Avatar className="size-10 hover:opacity-75 transition border border-neutral-300">
-                        <AvatarFallback className="font-medium text-neutral-500 flex items-center justify-center">
+                    <Avatar className="size-10 hover:opacity-75 transition border border-neutral-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                        <AvatarFallback className="font-medium text-gray-800 dark:text-gray-200 flex items-center justify-center">
                             {avatarFallback}
                         </AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" side="bottom" className="w-60" sideOffset={10}>
                 <div className="flex flex-col items-center justify-center gap-2 px-2.5 py-4">
-                    <Avatar className="size-[52px] border border-neutral-300">
-                        <AvatarFallback className="bg-neutral-200 text-xl font-medium text-neutral-500 flex items-center justify-center">
+                    <Avatar className="size-[52px] border border-neutral-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                        <AvatarFallback className="text-xl font-medium text-gray-800 dark:text-gray-200 flex items-center justify-center">
                             {avatarFallback}
                         </AvatarFallback>
                     </Avatar>

@@ -16,12 +16,10 @@ import { useCreateConversation } from '../api/use-create-conversation';
 import { useSendMessage } from '../api/use-send-message';
 import { useCurrent } from '@/features/auth/api/use-current';
 import { Conversation } from '../types';
-import { useQueryClient } from '@tanstack/react-query';
 
 export function ChatContainer() {
   const params = useParams();
   const workspaceId = params.workspaceId as string;
-  const queryClient = useQueryClient();
   
   // Get current user
   const { data: currentUser } = useCurrent();
@@ -100,12 +98,13 @@ export function ChatContainer() {
   useEffect(() => {
     if (!activeConversationId) return;
     
-    const intervalId = setInterval(() => {
-      queryClient.invalidateQueries({ queryKey: ['messages', activeConversationId] });
-    }, 2000);
+    // Remove the manual polling since useGetMessages already has a polling mechanism
+    const cleanup = () => {
+      // Cleanup any subscriptions or side effects if needed
+    };
     
-    return () => clearInterval(intervalId);
-  }, [activeConversationId, queryClient]);
+    return cleanup;
+  }, [activeConversationId]);
   
   // Event handlers
   const handleSelectConversation = (conversationId: string) => {
@@ -113,32 +112,42 @@ export function ChatContainer() {
   };
   
   const handleCreateConversation = async (name: string, memberIds: string[]) => {
-    const newConversation = await createConversation.mutateAsync({
-      name,
-      workspaceId,
-      memberIds,
-    });
-    
-    // Select the newly created conversation
-    setActiveConversationId(newConversation.id);
-    
-    // Close the modal
-    createConversationModal.close();
+    try {
+      const newConversation = await createConversation.mutateAsync({
+        name,
+        workspaceId,
+        memberIds,
+      });
+      
+      // Select the newly created conversation
+      setActiveConversationId(newConversation.id);
+      
+      // Close the modal
+      createConversationModal.close();
+    } catch (error) {
+      console.error('[ChatContainer] Error creating conversation:', error);
+      // You might want to show an error toast or message here
+    }
   };
   
   const handleSendMessage = async (data: MessageFormData) => {
-    if (!activeConversationId) return;
+    if (!activeConversationId || !currentUser) {
+      console.error('[ChatContainer] Cannot send message: missing conversation ID or user');
+      return;
+    }
     
-    await sendMessage.mutateAsync({
-      conversationId: activeConversationId,
-      content: data.content,
-      senderId: currentUser?.$id || 'user-1', // Use current user ID when available
-      username: currentUser?.name || 'You',
-      avatar: 'https://github.com/shadcn.png' // Use a placeholder avatar
-    });
-    
-    // Immediately invalidate messages to refresh
-    queryClient.invalidateQueries({ queryKey: ['messages', activeConversationId] });
+    try {
+      await sendMessage.mutateAsync({
+        conversationId: activeConversationId,
+        content: data.content,
+        senderId: currentUser.$id,
+        username: currentUser.name,
+        avatar: currentUser.avatarUrl || 'https://github.com/shadcn.png'
+      });
+    } catch (error) {
+      console.error('[ChatContainer] Error sending message:', error);
+      // You might want to show an error toast or message here
+    }
   };
   
   // Loading states
@@ -159,57 +168,60 @@ export function ChatContainer() {
   const inputDisabled = !activeConversationId;
 
   return (
-    <div className="flex h-full">
-      {/* Conversations sidebar */}
-      <div className="w-72 h-full border-r flex-shrink-0">
-        <ConversationList
-          conversations={conversations}
-          isLoading={isLoadingConversations}
-          error={conversationsError ? 'Failed to load conversations' : null}
-          activeConversationId={activeConversationId || undefined}
-          onSelect={handleSelectConversation}
-          onCreateNew={createConversationModal.open}
-        />
-      </div>
-      
-      {/* Main chat area */}
-      <div className="flex-1 flex flex-col h-full">
-        <ConversationHeader
-          conversation={activeConversation}
-          members={conversationMembers}
-          isLoading={isLoadingMembers}
-        />
-        
-        {/* Display empty state when no messages */}
-        {showEmptyState ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            <div className="max-w-md p-6 bg-blue-50 rounded-lg border border-blue-100">
-              <h3 className="text-lg font-medium text-blue-800 mb-2">No messages yet</h3>
-              <p className="text-blue-600">
-                Start a conversation by sending a message below.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 overflow-y-auto bg-white" data-testid="message-list-container">
-            <MessageList 
-              messages={messages}
-              isLoading={isLoadingMessages}
-              error={messagesError ? 'Failed to load messages' : null}
-            />
-          </div>
-        )}
-        
-        <div className="border-t bg-white" data-testid="message-input">
-          <MessageInput 
-            onSubmit={handleSendMessage}
-            isLoading={isSending}
-            error={error}
-            disabled={inputDisabled}
+    <div className="flex flex-col h-full">
+      {/* Chat Layout */}
+      <div className="flex flex-1 h-full">
+        {/* Conversations sidebar */}
+        <div className="w-72 h-full border-r border-border flex-shrink-0 bg-secondary/50 dark:bg-[#DFDFDF]">
+          <ConversationList
+            conversations={conversations}
+            isLoading={isLoadingConversations}
+            error={conversationsError ? 'Failed to load conversations' : null}
+            activeConversationId={activeConversationId || undefined}
+            onSelect={handleSelectConversation}
+            onCreateNew={createConversationModal.open}
           />
         </div>
+        
+        {/* Main chat area */}
+        <div className="flex-1 flex flex-col h-full bg-background dark:bg-[#DFDFDF]">
+          <ConversationHeader
+            conversation={activeConversation}
+            members={conversationMembers}
+            isLoading={isLoadingMembers}
+          />
+          
+          {/* Display empty state when no messages */}
+          {showEmptyState ? (
+            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+              <div className="max-w-md p-6 bg-secondary/50 dark:bg-white/10 rounded-lg border border-border/50">
+                <h3 className="text-lg font-medium text-primary dark:text-gray-800 mb-2">No messages yet</h3>
+                <p className="text-muted-foreground dark:text-gray-600">
+                  Start a conversation by sending a message below.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto bg-background/50 dark:bg-[#DFDFDF] px-4" data-testid="message-list-container">
+              <MessageList 
+                messages={messages}
+                isLoading={isLoadingMessages}
+                error={messagesError ? 'Failed to load messages' : null}
+              />
+            </div>
+          )}
+          
+          <div className="border-t border-border/50 bg-background/50 dark:bg-[#DFDFDF] p-4" data-testid="message-input">
+            <MessageInput 
+              onSubmit={handleSendMessage}
+              isLoading={isSending}
+              error={error}
+              disabled={inputDisabled}
+            />
+          </div>
+        </div>
       </div>
-      
+
       {/* Create conversation modal */}
       <CreateConversation
         isOpen={createConversationModal.isOpen || false}
