@@ -2,7 +2,7 @@
 
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { ResponsiveModal } from "@/components/responsive-modal";
-import { CreateWorkspaceForm } from "./create-workspace-form";
+import { WorkspaceOptions } from "./workspace-options";
 import { useCreateWorkspaceModal } from "../hooks/use-create-workspace-modal";
 
 export const CreateWorkspaceModal = () => {
@@ -11,7 +11,7 @@ export const CreateWorkspaceModal = () => {
     return (
         <NuqsAdapter>
             <ResponsiveModal open={isOpen} onOpenChange={toggle}>
-                <CreateWorkspaceForm onCancel={close} />
+                <WorkspaceOptions onCancel={close} />
             </ResponsiveModal>
         </NuqsAdapter>
     );
