@@ -9,10 +9,6 @@ A modern project management application built with Next.js, Appwrite, and Tailwi
 - **Jessica**
 - **Mark**
 
-### DevOps and Testings
-- **Q**
-- **Germain**
-
 ## Table of Contents
 
 - [Overview](#overview)
