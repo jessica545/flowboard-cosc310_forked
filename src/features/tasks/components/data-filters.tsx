@@ -72,10 +72,10 @@ export const DataFilters = ({ hideProjectFilter, forcedProjectId }: DataFiltersP
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All statuses</SelectItem>
-                        <SelectItem value="todo">Todo</SelectItem>
-                        <SelectItem value="in_progress">In Progress</SelectItem>
-                        <SelectItem value="done">Done</SelectItem>
-                        <SelectItem value="backlog">Backlog</SelectItem>
+                        <SelectItem value={TaskStatus.TODO}>Todo</SelectItem>
+                        <SelectItem value={TaskStatus.IN_PROGRESS}>In Progress</SelectItem>
+                        <SelectItem value={TaskStatus.DONE}>Done</SelectItem>
+                        <SelectItem value={TaskStatus.BACKLOG}>Backlog</SelectItem>
                     </SelectContent>
                 </Select>
 
