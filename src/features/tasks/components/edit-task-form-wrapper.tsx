@@ -25,10 +25,10 @@ export const EditTaskFormWrapper = ({ onCancel, id }: EditTaskFormWrapperProps) 
     imageUrl: project.ImageUrl,
   }));
 
-  const memberOptions = members?.documents.map((member: { $id: string; name: string }) => ({
+  const memberOptions = members?.documents?.map((member: { $id: string; name: string }) => ({
     id: member.$id,
     name: member.name,
-  }));
+  })) ?? [];
 
   const isLoading = isLoadingProjects || isLoadingMembers || isLoadingTask;
 
